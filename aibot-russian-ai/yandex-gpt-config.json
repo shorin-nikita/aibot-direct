@@ -1,0 +1,56 @@
+{
+  "name": "Yandex GPT Integration",
+  "description": "Интеграция с российской нейросетью YandexGPT",
+  "provider": "yandex",
+  "api_base": "https://llm.api.cloud.yandex.net",
+  "models": [
+    {
+      "name": "YandexGPT Lite",
+      "id": "yandexgpt-lite/latest", 
+      "description": "Быстрая версия YandexGPT для простых задач",
+      "context_length": 2048,
+      "languages": ["ru", "en"],
+      "features": ["chat", "completion"],
+      "pricing": "бесплатно до 1000 запросов/день"
+    },
+    {
+      "name": "YandexGPT",
+      "id": "yandexgpt/latest",
+      "description": "Полная версия YandexGPT",
+      "context_length": 8192,
+      "languages": ["ru", "en"],
+      "features": ["chat", "completion", "summarization"],
+      "pricing": "платный после лимита"
+    }
+  ],
+  "services": {
+    "yandex_translate": {
+      "description": "Перевод текстов",
+      "api": "https://translate.api.cloud.yandex.net",
+      "features": ["translate", "detect_language", "supported_languages"]
+    },
+    "yandex_speechkit": {
+      "description": "Распознавание и синтез речи",
+      "api": "https://stt.api.cloud.yandex.net",
+      "features": ["speech_to_text", "text_to_speech", "voice_synthesis"]
+    }
+  },
+  "setup_instructions": {
+    "1": "Создайте аккаунт в Yandex Cloud: https://cloud.yandex.ru/",
+    "2": "Создайте фолдер и получите FOLDER_ID",
+    "3": "Создайте API ключ или используйте OAuth токен",
+    "env_vars": {
+      "YANDEX_CLOUD_FOLDER_ID": "your_folder_id",
+      "YANDEX_CLOUD_API_KEY": "your_api_key",
+      "YANDEX_CLOUD_OAUTH_TOKEN": "your_oauth_token"
+    },
+    "4": "Настройте биллинг для коммерческого использования"
+  },
+  "workflow_examples": [
+    "Автоперевод входящих сообщений",
+    "Генерация ответов на русском языке",
+    "Анализ тональности отзывов клиентов",
+    "Суммаризация длинных документов",
+    "Голосовые помощники с русской речью"
+  ]
+}

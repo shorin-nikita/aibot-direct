@@ -1,8 +1,57 @@
+# 🎮 AIBot Direct - Git Ignore Rules
+
+# Environment files
 .env
+.env.local
+.env.production
+
+# Docker volumes and data
 volumes/
 shared/
+supabase/volumes/
 neo4j/
-shared-backup/
-.env.test
+aibot-audio/uploads/
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+.pytest_cache/
+
+# Node modules (for any JS tools)
+node_modules/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# SearXNG settings (contains secrets)
 searxng/settings.yml
-searxng/uwsgi*

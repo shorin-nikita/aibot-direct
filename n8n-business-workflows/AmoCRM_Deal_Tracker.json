@@ -1,0 +1,140 @@
+{
+  "name": "💼 Трекер сделок AmoCRM",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://yourdomain.amocrm.ru/api/v4/leads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.AMOCRM_ACCESS_TOKEN}}"
+            }
+          ]
+        }
+      },
+      "id": "get-amocrm-deals",
+      "name": "Получить сделки AmoCRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{$json.status_id}}",
+              "rightValue": "142",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "filter-closed-deals",
+      "name": "Фильтр закрытых сделок",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "prompt": "Ты Alenushka - AI аналитик российского бизнеса. Проанализируй закрытую сделку:\n\nСумма: {{$json.price}} руб.\nКлиент: {{$json.name}}\nДата: {{$json.closed_at}}\n\nДай рекомендации:\n1. Почему сделка закрылась успешно\n2. Как повторить этот успех\n3. Какие действия предпринять с похожими клиентами\n\nОтвет на русском языке, конкретно и по делу."
+      },
+      "id": "ai-deal-analysis",
+      "name": "AI анализ сделки",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://yourdomain.amocrm.ru/api/v4/leads/{{$json.id}}/notes",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "note_type",
+              "value": "common"
+            },
+            {
+              "name": "params",
+              "value": {
+                "text": "🤖 AI анализ от Alenushka:\n\n{{$node.ai-deal-analysis.json.choices[0].message.content}}"
+              }
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization", 
+              "value": "Bearer {{$env.AMOCRM_ACCESS_TOKEN}}"
+            }
+          ]
+        }
+      },
+      "id": "add-note-amocrm",
+      "name": "Добавить заметку в AmoCRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [920, 300]
+    }
+  ],
+  "connections": {
+    "get-amocrm-deals": {
+      "main": [
+        [
+          {
+            "node": "filter-closed-deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter-closed-deals": {
+      "main": [
+        [
+          {
+            "node": "ai-deal-analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ai-deal-analysis": {
+      "main": [
+        [
+          {
+            "node": "add-note-amocrm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "tags": [
+    {
+      "createdAt": "2024-09-18T00:00:00.000Z",
+      "updatedAt": "2024-09-18T00:00:00.000Z", 
+      "id": "amocrm-automation",
+      "name": "AmoCRM"
+    }
+  ]
+}

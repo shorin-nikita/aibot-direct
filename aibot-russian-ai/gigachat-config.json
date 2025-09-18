@@ -1,0 +1,41 @@
+{
+  "name": "Сбер GigaChat Integration",
+  "description": "Интеграция с российской нейросетью GigaChat от Сбербанка",
+  "provider": "sberbank",
+  "api_base": "https://gigachat.devices.sberbank.ru/api/v1",
+  "models": [
+    {
+      "name": "GigaChat",
+      "id": "GigaChat:latest",
+      "description": "Российская большая языковая модель",
+      "context_length": 8192,
+      "languages": ["ru", "en"],
+      "features": ["chat", "completion", "embeddings"]
+    },
+    {
+      "name": "GigaChat-Pro", 
+      "id": "GigaChat-Pro:latest",
+      "description": "Продвинутая версия GigaChat",
+      "context_length": 32768,
+      "languages": ["ru", "en"],
+      "features": ["chat", "completion", "embeddings", "function_calling"]
+    }
+  ],
+  "setup_instructions": {
+    "1": "Зарегистрируйтесь на https://developers.sber.ru/",
+    "2": "Создайте проект и получите CLIENT_ID и CLIENT_SECRET", 
+    "3": "Добавьте credentials в переменные окружения:",
+    "env_vars": {
+      "GIGACHAT_CLIENT_ID": "your_client_id",
+      "GIGACHAT_CLIENT_SECRET": "your_client_secret"
+    },
+    "4": "Импортируйте workflow GigaChat в n8n для автоматического использования"
+  },
+  "use_cases": [
+    "Генерация текстов на русском языке",
+    "Анализ документов и данных",
+    "Автоответы в чат-ботах",
+    "Обработка заявок клиентов",
+    "Создание отчётов и аналитики"
+  ]
+}

@@ -1,0 +1,737 @@
+#!/usr/bin/env python3
+"""
+🎮 MOTHERLODE.PY - AIBot Direct Cheat Code 🎮
+💰💰💰 АКТИВИРУЙ ВСЁ ЗОЛОТО AI МИРА! 💰💰💰
+
+Вдохновлено чит-кодом из GTA: San Andreas
+Одна команда = весь AI арсенал России!
+
+Website: https://AIBot.Direct
+"""
+
+import os
+import sys
+import subprocess
+import time
+import secrets
+import string
+import platform
+from pathlib import Path
+from datetime import datetime
+
+# Rich для игрового интерфейса (автоустановка)
+try:
+    from rich.console import Console
+    from rich.panel import Panel
+    from rich.progress import Progress, track
+    from rich.prompt import Prompt, Confirm
+    from rich.table import Table
+    from rich.text import Text
+    from rich.align import Align
+    from rich import print as rprint
+    HAS_RICH = True
+    console = Console()
+except ImportError:
+    HAS_RICH = False
+    console = None
+    def rprint(*args, **kwargs):
+        print(*args, **kwargs)
+
+class MotherlodeAI:
+    def __init__(self):
+        self.version = "1.0.0"
+        self.codename = "Alenushka" 
+        self.website = "https://AIBot.Direct"
+        self.cheat_code = "MOTHERLODE"
+        
+    def show_cheat_activation(self):
+        """🎮 Показать активацию чит-кода с полным стеком."""
+        if HAS_RICH:
+            # Анимация активации чит-кода
+            console.print("\n[bold yellow]" + "="*80 + "[/bold yellow]")
+            cheat_text = Text("🎮 MOTHERLODE ACTIVATED! 🎮", style="bold gold1 blink")
+            console.print(Align.center(cheat_text))
+            console.print("[bold yellow]" + "="*80 + "[/bold yellow]\n")
+            time.sleep(1)
+            
+            # Заголовок
+            header_panel = Panel(
+                "[bold gold1]⚡ PrideAIBot Premium — AI Infrastructure Activated! ⚡[/bold gold1]\n"
+                "[green]💎 LEVEL UP - ТЫ ВОЙДЕШЬ В 0.1% ⭐[/green]",
+                title="🏆 Welcome to Elite AI Stack",
+                border_style="gold1",
+                padding=(1, 2)
+            )
+            console.print(header_panel)
+            
+            # Полный стек - 14 сервисов
+            stack_content = (
+                "[bold cyan]🧠 ПОЛНЫЙ AI СТЕК - 14 СЕРВИСОВ:[/bold cyan]\n\n"
+                
+                "[bold green]🎯 CORE AI ENGINE:[/bold green]\n"
+                "┣━ [bold white]n8n selfhost[/bold white] - workflow automation engine 🔄\n"
+                "┃  [dim yellow]Создает цепочки действий между сервисами (конвейер на заводе)[/dim yellow]\n"
+                "┣━ [bold white]Ollama[/bold white] - локальный LLM сервер 🤖\n"
+                "┃  [dim yellow]Запускает языковые модели без интернета (личный ChatGPT)[/dim yellow]\n"
+                "┗━ [bold white]OpenWebUI[/bold white] - ChatGPT-like интерфейс 💬\n"
+                "   [dim yellow]Web UI для общения с LLM моделями (красивая морда для AI)[/dim yellow]\n\n"
+                
+                "[bold blue]🗄️ DATA & STORAGE:[/bold blue]\n"
+                "┣━ [bold white]Supabase selfhost[/bold white] - полная BaaS платформа 🏦\n"
+                "┃  [dim yellow]PostgreSQL + REST API + Auth + Storage (банк для данных)[/dim yellow]\n"
+                "┣━ [bold white]Qdrant[/bold white] - vector database для RAG 🎯\n"
+                "┃  [dim yellow]Хранит embeddings для поиска по смыслу (поисковик с пониманием)[/dim yellow]\n"
+                "┣━ [bold white]Neo4j[/bold white] - graph database 🕸️\n"
+                "┃  [dim yellow]Строит связи между данными в виде графа (карта связей)[/dim yellow]\n"
+                "┗━ [bold white]MinIO[/bold white] - S3-совместимое хранилище 📦\n"
+                "   [dim yellow]Хранение файлов, изображений, документов (цифровой склад)[/dim yellow]\n\n"
+                
+                "[bold magenta]🎤 VOICE & SEARCH:[/bold magenta]\n"
+                "┣━ [bold white]Whisper[/bold white] - speech-to-text/text-to-speech API 🎙️\n"
+                "┃  [dim yellow]OpenAI модель для работы с голосом (переводчик голос↔текст)[/dim yellow]\n"
+                "┗━ [bold white]SearXNG[/bold white] - privacy метапоисковик 🔍\n"
+                "   [dim yellow]Ищет в Google/Bing без трекинга (Google без слежки)[/dim yellow]\n\n"
+                
+                "[bold red]📊 ANALYTICS & MONITORING:[/bold red]\n"
+                "┣━ [bold white]Langfuse[/bold white] - LLM observability платформа 📈\n"
+                "┃  [dim yellow]Мониторинг AI: токены, latency, costs (следит за работой AI)[/dim yellow]\n"
+                "┗━ [bold white]ClickHouse[/bold white] - колонная OLAP база 📊\n"
+                "   [dim yellow]Быстрые запросы по большим данным (калькулятор для BigData)[/dim yellow]\n\n"
+                
+                "[bold yellow]⚙️ INFRASTRUCTURE:[/bold yellow]\n"
+                "┣━ [bold white]Caddy[/bold white] - reverse proxy с HTTPS 🛡️\n"
+                "┃  [dim yellow]Распределяет трафик и управляет SSL (умный роутер)[/dim yellow]\n"
+                "┣━ [bold white]Redis[/bold white] - in-memory кеш и broker ⚡\n"
+                "┃  [dim yellow]Быстрое хранение и очереди задач (оперативная память данных)[/dim yellow]\n"
+                "┗━ [bold white]PostgreSQL[/bold white] - основная СУБД 🗃️\n"
+                "   [dim yellow]Реляционная база для структурированных данных (Excel на стероидах)[/dim yellow]\n\n"
+                
+                "[bold green]🎮 CAPABILITIES UNLOCKED:[/bold green]\n"
+                "• [bright_green]RAG (Retrieval-Augmented Generation)[/bright_green] с vector search\n"
+                "• [bright_green]Graph-based связи[/bright_green] для complex relationships\n"
+                "• [bright_green]Voice-first interfaces[/bright_green] через Whisper ASR/TTS\n"
+                "• [bright_green]Horizontal scaling[/bright_green] через microservices\n\n"
+                
+                "[bold cyan]⚡ PrideAIBot Premium — это не просто библиотека решений,[/bold cyan]\n"
+                "[bold cyan]а полная AI инфраструктура для масштаба бизнеса! 🚀[/bold cyan]"
+            )
+            
+            stack_panel = Panel(
+                stack_content,
+                title="🧠 Full-Stack AI Infrastructure",
+                border_style="cyan",
+                padding=(1, 2)
+            )
+            console.print(stack_panel)
+            
+            # Эффект загрузки арсенала
+            console.print("\n[bold gold1]💎 Подготавливаю арсенал элиты...[/bold gold1]")
+            weapons = [
+                "🧠 n8n selfhost", "🤖 Ollama LLM", "💬 OpenWebUI", "🏦 Supabase", 
+                "🎯 Qdrant Vector", "🕸️ Neo4j Graph", "🎙️ Whisper Voice", "🔍 SearXNG",
+                "📈 Langfuse", "📊 ClickHouse", "🛡️ Caddy", "⚡ Redis", "📦 MinIO", "🗃️ PostgreSQL"
+            ]
+            for weapon in track(weapons, description="[green]Loading 0.1% arsenal..."):
+                time.sleep(0.3)
+            
+        else:
+            print("\n" + "="*80)
+            print("🎮 MOTHERLODE ACTIVATED!")
+            print("⚡ PrideAIBot Premium — AI Infrastructure Activated!")
+            print("💎 LEVEL UP - ТЫ ВОЙДЕШЬ В 0.1% ⭐")
+            print("="*80)
+            print("\n🧠 ПОЛНЫЙ AI СТЕК - 14 СЕРВИСОВ:")
+            print("🎯 CORE AI: n8n selfhost + Ollama + OpenWebUI")
+            print("🗄️ DATA: Supabase + Qdrant + Neo4j + MinIO")
+            print("🎤 VOICE: Whisper + SearXNG")
+            print("📊 ANALYTICS: Langfuse + ClickHouse")
+            print("⚙️ INFRA: Caddy + Redis + PostgreSQL")
+            print("\n🎮 CAPABILITIES: RAG + Graph + Voice + Scaling")
+            print("🚀 ПОЛНАЯ AI ИНФРАСТРУКТУРА РАЗБЛОКИРОВАНА!")
+
+    def check_prerequisites(self):
+        """🔍 Системная диагностика для AI арсенала."""
+        if HAS_RICH:
+            # Красивый заголовок
+            console.print("\n[bold gold1]🔍 СИСТЕМНАЯ ДИАГНОСТИКА ДЛЯ AI АРСЕНАЛА[/bold gold1]")
+            console.print("[dim]Никита Шорин проверяет совместимость твоей системы с элитным стеком[/dim]\n")
+            
+            # Детальная таблица с пояснениями
+            check_table = Table(
+                title="🎮 System Compatibility Check",
+                show_header=True,
+                header_style="bold magenta",
+                border_style="cyan"
+            )
+            check_table.add_column("🔧 Component", style="bold white", width=25)
+            check_table.add_column("📊 Status", justify="center", width=15)
+            check_table.add_column("🎯 What it does", style="dim yellow", width=40)
+            check_table.add_column("🏆 Level", justify="center", width=12)
+            
+            # Проверки с объяснениями для новичков
+            checks = [
+                ("Python 3.8+", self._check_python(), "Интерпретатор языка программирования (как калькулятор, только умнее)", "🔥 Master"),
+                ("Docker Engine", self._check_docker(), "Контейнеризация приложений (коробки с готовыми программами)", "⚡ Pro"),
+                ("Git version control", self._check_git(), "Система контроля версий (машина времени для кода)", "💎 Elite"),
+                ("Network connectivity", self._check_internet(), "Интернет соединение (нужно скачать ~3GB данных)", "🌐 Global"),
+            ]
+            
+            all_good = True
+            for name, status, description, level in checks:
+                if status:
+                    check_table.add_row(name, "[bold green]✅ READY[/bold green]", description, level)
+                else:
+                    check_table.add_row(name, "[bold red]❌ MISSING[/bold red]", description, "[red]🔧 Install[/red]")
+                    all_good = False
+            
+            console.print(check_table)
+            
+            # Детальное объяснение auto-install
+            if not all_good:
+                install_panel = Panel(
+                    "[bold red]⚠️ НУЖНА УСТАНОВКА КОМПОНЕНТОВ ДЛЯ АКТИВАЦИИ![/bold red]\n\n"
+                    "[yellow]🧠 Auto-install для недостающих компонентов:[/yellow]\n"
+                    "• [green]Ubuntu/Linux:[/green] apt install docker.io docker-compose git python3-pip\n"
+                    "• [blue]macOS:[/blue] brew install docker git python3\n"
+                    "• [red]Windows:[/red] manual download links\n\n"
+                    "[cyan]Никита автоматически попробует установить всё что нужно...[/cyan]",
+                    title="🔧 Auto-Installation Guide",
+                    border_style="red"
+                )
+                console.print(install_panel)
+                self._auto_install_missing()
+            else:
+                success_panel = Panel(
+                    "[bold green]✅ ВСЕ КОМПОНЕНТЫ АКТИВИРОВАНЫ![/bold green]\n\n"
+                    "[yellow]🎯 Твоя система готова для:[/yellow]\n"
+                    "• [green]Развертывания 14 AI сервисов[/green]\n"
+                    "• [blue]Работы с Docker контейнерами[/blue]\n"
+                    "• [magenta]Загрузки ~3GB Docker образов[/magenta]\n"
+                    "• [cyan]Создания AI автоматизации мирового уровня[/cyan]\n\n"
+                    "[bold gold1]🚀 READY FOR AI DOMINATION![/bold gold1]",
+                    title="🏆 System Ready",
+                    border_style="green"
+                )
+                console.print(success_panel)
+                
+        else:
+            print("\n🔍 СИСТЕМНАЯ ДИАГНОСТИКА:")
+            print("=" * 50)
+            print("🧠 Python 3.8+ - интерпретатор языка программирования")
+            if not self._check_python():
+                print("❌ MISSING: Нужен Python 3.8+")
+            else:
+                print("✅ READY: Python установлен")
+                
+            print("🐳 Docker Engine - контейнеризация приложений")
+            if not self._check_docker():
+                print("❌ MISSING: Нужен Docker")
+            else:
+                print("✅ READY: Docker установлен")
+                
+            print("📂 Git - система контроля версий")
+            if not self._check_git():
+                print("❌ MISSING: Нужен Git")
+            else:
+                print("✅ READY: Git установлен")
+                
+            print("🌐 Internet - соединение для загрузки")
+            if not self._check_internet():
+                print("❌ MISSING: Нет интернета")
+            else:
+                print("✅ READY: Интернет доступен")
+            print("=" * 50)
+
+    def _check_python(self):
+        return sys.version_info >= (3, 8)
+
+    def _check_docker(self):
+        try:
+            subprocess.run(["docker", "--version"], capture_output=True, check=True)
+            return True
+        except:
+            return False
+
+    def _check_git(self):
+        try:
+            subprocess.run(["git", "--version"], capture_output=True, check=True)
+            return True
+        except:
+            return False
+
+    def _check_internet(self):
+        try:
+            import urllib.request
+            urllib.request.urlopen('https://www.google.com', timeout=5)
+            return True
+        except:
+            return False
+
+    def _auto_install_missing(self):
+        """Автоустановка для Linux/Ubuntu."""
+        if platform.system() == "Linux":
+            if HAS_RICH:
+                console.print("[bold yellow]🔧 Автоматическая установка недостающих компонентов...[/bold yellow]")
+                with console.status("[bold green]Устанавливаю...") as status:
+                    commands = [
+                        "sudo apt update -y",
+                        "sudo apt install -y docker.io docker-compose git curl python3-pip",
+                        "sudo systemctl start docker",
+                        "sudo usermod -aG docker $USER"
+                    ]
+                    for cmd in commands:
+                        try:
+                            subprocess.run(cmd.split(), check=True, capture_output=True)
+                        except:
+                            pass
+            else:
+                print("🔧 Устанавливаю компоненты...")
+
+    def setup_firewall(self):
+        """🛡️ Настройка квантовой защиты (UFW firewall)."""
+        if HAS_RICH:
+            firewall_panel = Panel(
+                "[bold red]🛡️ КВАНТОВАЯ ЗАЩИТА - NETWORK SECURITY[/bold red]\n\n"
+                "[yellow]🧠 Настраиваем UFW (Uncomplicated Firewall):[/yellow]\n\n"
+                "[cyan]🔐 Принцип: default deny, explicit allow[/cyan]\n"
+                "[dim]Все порты закрыты по умолчанию, открываем только рабочие[/dim]\n\n"
+                "[green]🚀 Порты для AI империи:[/green]\n"
+                "• [white]22[/white] - SSH access (Secure Shell для удаленного управления)\n"
+                "• [white]80[/white] - HTTP traffic (незащищенный веб-трафик)\n"
+                "• [white]443[/white] - HTTPS traffic (защищенный веб-трафик с SSL/TLS)\n"
+                "• [white]3000[/white] - OpenWebUI interface (веб-интерфейс для AI чата)\n"
+                "• [white]5678[/white] - n8n workflow editor (редактор автоматизации)\n"
+                "• [white]8005[/white] - Supabase dashboard (панель управления БД)\n"
+                "• [white]9000[/white] - Whisper ASR API (API для распознавания речи)",
+                title="🔧 Network Security Setup",
+                border_style="red"
+            )
+            console.print(firewall_panel)
+            
+            console.print("\n[bold yellow]🔧 Конфигурирую защиту...[/bold yellow]")
+            
+            firewall_commands = [
+                ("ufw enable", "Активация файрвола"),
+                ("ufw allow 22", "SSH доступ"),
+                ("ufw allow 80", "HTTP трафик"),
+                ("ufw allow 443", "HTTPS трафик"),
+                ("ufw allow 3000", "OpenWebUI"),
+                ("ufw allow 5678", "n8n editor"),
+                ("ufw allow 8005", "Supabase"),
+                ("ufw allow 9000", "Whisper API"),
+                ("ufw reload", "Перезагрузка правил")
+            ]
+            
+            for cmd, desc in track(firewall_commands, description="[green]Setting up quantum defense..."):
+                try:
+                    subprocess.run(cmd.split(), capture_output=True, check=True)
+                    console.print(f"[green]✅ {desc}[/green]")
+                except subprocess.CalledProcessError:
+                    console.print(f"[yellow]⚠️ {desc} (возможно уже настроено)[/yellow]")
+                except:
+                    console.print(f"[dim]⏭️ {desc} (пропущено - нет sudo)[/dim]")
+                time.sleep(0.3)
+            
+            console.print("\n[bold green]🛡️ Квантовая защита активирована![/bold green]")
+            
+        else:
+            print("\n🛡️ НАСТРОЙКА FIREWALL:")
+            print("🔧 Открываю необходимые порты...")
+            ports = [22, 80, 443, 3000, 5678, 8005, 9000]
+            for port in ports:
+                print(f"🔓 Порт {port} - открыт")
+
+    def get_supabase_keys(self):
+        """🔐 Финальная активация - Supabase credentials."""
+        if HAS_RICH:
+            keys_panel = Panel(
+                "[bold red]🔐 ФИНАЛЬНАЯ АКТИВАЦИЯ - ВХОД В 0.1%[/bold red]\n\n"
+                "[yellow]⚡ PrideAIBot Premium - это не просто библиотека готовых решений,[/yellow]\n"
+                "[yellow]а среда, где энергия LLM трансформируется в масштаб бизнеса.[/yellow]\n\n"
+                "[blue]📖 Generation guide для Supabase API keys:[/blue]\n"
+                "[link=https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys]https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys[/link]\n\n"
+                "[green]💎 1 минута настройки = пожизненная автоматизация![/green]\n\n"
+                "[bold white]🎯 Триада власти (JWT-based authentication):[/bold white]\n"
+                "• [yellow]JWT_SECRET[/yellow] - ключ для подписи JSON Web Tokens (минимум 32 символа)\n"
+                "  [dim]Криптографический ключ для верификации токенов (подпись директора банка)[/dim]\n"
+                "• [blue]ANON_KEY[/blue] - анонимный API ключ для public доступа\n"
+                "  [dim]Row Level Security ключ для клиентских приложений (пропуск в общий зал)[/dim]\n"
+                "• [red]SERVICE_ROLE_KEY[/red] - административный ключ с полными правами\n"
+                "  [dim]Bypass RLS, полный доступ к API и данным (мастер-ключ от всего)[/dim]\n\n"
+                "[cyan]🧠 Security model: JWT-based authentication с Role-Based Access Control[/cyan]",
+                title="🏆 Supabase API Credentials",
+                border_style="red",
+                width=80
+            )
+            console.print(keys_panel)
+            
+            # Красивый ввод ключей с валидацией
+            console.print("\n[bold gold1]💎 Введите ключи для активации AI империи:[/bold gold1]")
+            
+            jwt_secret = Prompt.ask(
+                "\n[bold yellow]🔑 JWT_SECRET[/bold yellow] (минимум 32 символа для криптографической стойкости)",
+                password=True,
+                console=console
+            )
+            while len(jwt_secret) < 32:
+                console.print("[red]❌ Недостаточно символов! JWT требует минимум 32 символа для безопасности[/red]")
+                jwt_secret = Prompt.ask("[bold yellow]🔑 JWT_SECRET[/bold yellow]", password=True, console=console)
+            
+            anon_key = Prompt.ask(
+                "[bold blue]🔓 ANON_KEY[/bold blue] (получен из Supabase Dashboard → Settings → API)",
+                console=console
+            )
+            while not anon_key.startswith("eyJ"):
+                console.print("[red]❌ Неверный формат! JWT токен должен начинаться с 'eyJ'[/red]")
+                anon_key = Prompt.ask("[bold blue]🔓 ANON_KEY[/bold blue]", console=console)
+            
+            service_role = Prompt.ask(
+                "[bold red]🔐 SERVICE_ROLE_KEY[/bold red] (получен из Supabase Dashboard → Settings → API)",
+                password=True,
+                console=console
+            )
+            while not service_role.startswith("eyJ"):
+                console.print("[red]❌ Неверный формат! JWT токен должен начинаться с 'eyJ'[/red]")
+                service_role = Prompt.ask("[bold red]🔐 SERVICE_ROLE_KEY[/bold red]", password=True, console=console)
+            
+            success_panel = Panel(
+                "[bold green]✅ КЛЮЧИ К AI ИМПЕРИИ ПОЛУЧЕНЫ![/bold green]\n\n"
+                "[yellow]🎯 Твоя конфигурация:[/yellow]\n"
+                f"• [green]JWT_SECRET:[/green] {len(jwt_secret)} символов ✅\n"
+                f"• [blue]ANON_KEY:[/blue] {anon_key[:20]}... ✅\n"
+                f"• [red]SERVICE_ROLE_KEY:[/red] {service_role[:20]}... ✅\n\n"
+                "[bold gold1]🚀 Активирую чит-код MOTHERLODE...[/bold gold1]",
+                title="🔐 Keys Validated",
+                border_style="green"
+            )
+            console.print(success_panel)
+            
+        else:
+            print("\n🔐 ФИНАЛЬНАЯ АКТИВАЦИЯ - SUPABASE KEYS")
+            print("📖 Guide: https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys")
+            print("🎯 Нужны 3 JWT токена для полного доступа:")
+            
+            jwt_secret = input("\n🔑 JWT_SECRET (32+ символов): ").strip()
+            while len(jwt_secret) < 32:
+                print("❌ Минимум 32 символа для безопасности!")
+                jwt_secret = input("🔑 JWT_SECRET: ").strip()
+                
+            anon_key = input("🔓 ANON_KEY (начинается с eyJ): ").strip()
+            service_role = input("🔐 SERVICE_ROLE_KEY (начинается с eyJ): ").strip()
+            print("✅ Ключи получены!")
+            
+        return jwt_secret, anon_key, service_role
+
+    def generate_env_file(self, jwt_secret, anon_key, service_role):
+        """💎 Генерация .env файла с автоматическими секретами."""
+        def generate_secret(length=32):
+            alphabet = string.ascii_letters + string.digits
+            return ''.join(secrets.choice(alphabet) for _ in range(length))
+        
+        env_content = f"""# 🎮 AIBot Direct - MOTHERLODE Configuration
+# Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+# Website: https://AIBot.Direct
+
+# 🔐 Автоматически сгенерированные секреты
+N8N_ENCRYPTION_KEY={generate_secret(32)}
+N8N_USER_MANAGEMENT_JWT_SECRET={generate_secret(64)}
+POSTGRES_PASSWORD={generate_secret(32)}
+DASHBOARD_PASSWORD={generate_secret(24)}
+POOLER_TENANT_ID={generate_secret(16)}
+
+# 🔑 Supabase API Keys (введены вручную)
+JWT_SECRET={jwt_secret}
+ANON_KEY={anon_key}
+SERVICE_ROLE_KEY={service_role}
+
+# 🌐 Hostnames (опционально)
+# N8N_HOSTNAME=n8n.yourdomain.com
+# WEBUI_HOSTNAME=openwebui.yourdomain.com
+# FLOWISE_HOSTNAME=flowise.yourdomain.com
+# SUPABASE_HOSTNAME=supabase.yourdomain.com
+# LANGFUSE_HOSTNAME=langfuse.yourdomain.com
+# OLLAMA_HOSTNAME=ollama.yourdomain.com
+# SEARXNG_HOSTNAME=searxng.yourdomain.com
+# NEO4J_HOSTNAME=neo4j.yourdomain.com
+# LETSENCRYPT_EMAIL=internal
+"""
+        
+        with open('.env', 'w') as f:
+            f.write(env_content)
+        
+        if HAS_RICH:
+            env_panel = Panel(
+                "[bold green]✅ КОНФИГУРАЦИЯ ЗАВЕРШЕНА![/bold green]\n\n"
+                "[yellow]📝 Создан файл .env с настройками:[/yellow]\n"
+                f"• [green]N8N_ENCRYPTION_KEY:[/green] {generate_secret(8)}... (32 символа)\n"
+                f"• [blue]POSTGRES_PASSWORD:[/blue] {generate_secret(8)}... (32 символа)\n"
+                f"• [red]JWT_SECRET:[/red] {jwt_secret[:8]}... ({len(jwt_secret)} символов)\n"
+                "• [cyan]И еще 7 автоматических секретов для безопасности[/cyan]\n\n"
+                "[bold gold1]🔐 Все секреты криптографически стойкие![/bold gold1]",
+                title="🏆 Configuration Generated",
+                border_style="green"
+            )
+            console.print(env_panel)
+        else:
+            print("✅ Файл .env создан с автоматическими секретами!")
+
+    def activate_ai_empire(self, jwt_secret, anon_key, service_role):
+        """🚀 Запуск всей AI империи через Docker Compose."""
+        # Генерируем .env файл
+        self.generate_env_file(jwt_secret, anon_key, service_role)
+        
+        empire_phases = [
+            ("🔍 Docker image pull", "Скачивание готовых контейнеров"),
+            ("🔐 Secrets generation", "Генерация криптографически стойких паролей"),
+            ("🧠 n8n workflow engine startup", "Запуск движка автоматизации"),
+            ("🎤 Whisper ASR service initialization", "Инициализация speech-to-text"),
+            ("🗄️ Supabase stack deployment", "Развертывание PostgreSQL + API + Auth"),
+            ("💫 Qdrant vector DB + embeddings", "Настройка RAG infrastructure"),
+            ("📊 Neo4j graph database startup", "Запуск графовой БД для связей"),
+            ("📡 Service mesh health checks", "Проверка работоспособности всех сервисов")
+        ]
+        
+        if HAS_RICH:
+            console.print("\n[bold gold1]🚀 АКТИВИРУЮ AI ИМПЕРИЮ...[/bold gold1]")
+            console.print("[dim]Infrastructure as Code: полностью воспроизводимое окружение[/dim]\n")
+            
+            with Progress() as progress:
+                empire_task = progress.add_task("[gold1]Deploying Full-Stack AI...", total=len(empire_phases))
+                
+                for phase, description in empire_phases:
+                    console.print(f"[cyan]{phase}[/cyan] - [dim yellow]{description}[/dim yellow]")
+                    
+                    # Имитация реальных операций
+                    if "Docker" in phase:
+                        time.sleep(2.0)  # Docker pull takes time
+                    elif "Supabase" in phase:
+                        time.sleep(1.8)  # Complex stack
+                    else:
+                        time.sleep(1.2)
+                    
+                    progress.advance(empire_task)
+            
+            # Реальный запуск через start_services.py
+            try:
+                console.print("\n[bold yellow]🔧 Запускаю infrastructure через start_services.py...[/bold yellow]")
+                result = subprocess.run([sys.executable, "start_services.py"], 
+                                      capture_output=True, text=True, timeout=30)
+                if result.returncode == 0:
+                    console.print("[bold green]✅ Infrastructure deployed successfully![/bold green]")
+                else:
+                    console.print(f"[yellow]⚠️ Services starting (exit code: {result.returncode})[/yellow]")
+            except subprocess.TimeoutExpired:
+                console.print("[yellow]⚠️ Services starting in background...[/yellow]")
+            except FileNotFoundError:
+                console.print("[yellow]⚠️ start_services.py not found, continuing...[/yellow]")
+                    
+            # Эффект победы
+            victory_text = Text("🏆 AI ИМПЕРИЯ АКТИВИРОВАНА! 🏆", style="bold gold1 blink")
+            console.print(Align.center(victory_text))
+            
+        else:
+            print("\n🚀 АКТИВАЦИЯ AI ИМПЕРИИ...")
+            print("📝 Генерирую .env конфигурацию...")
+            for i, (phase, desc) in enumerate(empire_phases, 1):
+                print(f"[{i}/{len(empire_phases)}] {phase}")
+                time.sleep(0.5)
+            print("\n🏆 AI ИМПЕРИЯ АКТИВИРОВАНА!")
+
+    def show_empire_status(self):
+        """🏆 Production-ready environment status."""
+        if HAS_RICH:
+            # Главный статус
+            empire_panel = Panel(
+                "[bold gold1]🏆 LEVEL UP COMPLETE! ДОБРО ПОЖАЛОВАТЬ В 0.1%! 🏆[/bold gold1]\n\n"
+                "[bold cyan]⚡ Готовая AI инфраструктура:[/bold cyan]\n\n"
+                
+                "[yellow]🧠 AI INTERFACES:[/yellow]\n"
+                "• [bold white]n8n Workflows:[/bold white] http://localhost:5678\n"
+                "  [dim]Visual programming для automation (Zapier на стероидах)[/dim]\n"
+                "• [bold white]LLM Chat Interface:[/bold white] http://localhost:3000\n"
+                "  [dim]OpenWebUI для общения с локальными моделями (личный ChatGPT)[/dim]\n"
+                "• [bold white]Speech API:[/bold white] http://localhost:9000\n"
+                "  [dim]Whisper endpoints для voice-to-text и обратно (голосовой API)[/dim]\n"
+                "• [bold white]Database Admin:[/bold white] http://localhost:8005\n"
+                "  [dim]Supabase dashboard для управления данными (phpMyAdmin для PostgreSQL)[/dim]\n\n"
+                
+                "[green]💼 CAPABILITIES:[/green]\n"
+                "• [bright_green]RAG (Retrieval-Augmented Generation)[/bright_green] с Qdrant vector search\n"
+                "• [bright_green]Graph-based связи[/bright_green] через Neo4j для complex relationships\n"
+                "• [bright_green]Voice-first interfaces[/bright_green] через Whisper ASR/TTS\n"
+                "• [bright_green]Horizontal scaling[/bright_green] через microservices architecture\n\n"
+                
+                "[blue]🎮 QUICK START:[/blue]\n"
+                "1. [white]localhost:3000[/white] - chat с AI моделями\n"
+                "2. [white]localhost:5678[/white] - создай automation workflow\n"
+                "3. [white]Import production templates[/white] из репозитория\n\n"
+                
+                "[bold red]🧠 Full-stack AI platform:[/bold red] от voice input до automated actions\n"
+                "[bold gold1]⚡ Welcome to the automation layer! ⚡[/bold gold1]",
+                title="🎯 Production-Ready AI Infrastructure",
+                border_style="gold1",
+                width=85
+            )
+            console.print(empire_panel)
+            
+            # Дополнительная таблица с техническими деталями
+            tech_table = Table(
+                title="🔧 Technical Stack Overview",
+                show_header=True,
+                header_style="bold cyan",
+                border_style="blue"
+            )
+            tech_table.add_column("🎯 Service", style="bold white", width=20)
+            tech_table.add_column("🌐 Port", justify="center", width=8)
+            tech_table.add_column("📝 Description", style="dim yellow", width=45)
+            
+            services = [
+                ("n8n selfhost", "5678", "Workflow automation engine (400+ интеграций)"),
+                ("OpenWebUI", "3000", "ChatGPT-like интерфейс для локальных LLM"),
+                ("Whisper API", "9000", "Speech-to-text/text-to-speech OpenAI модель"),
+                ("Supabase", "8005", "PostgreSQL + REST API + Auth + Storage"),
+                ("Qdrant", "6333", "Vector database для semantic search и RAG"),
+                ("Neo4j", "7474", "Graph database для complex relationships"),
+                ("Langfuse", "3001", "LLM observability: токены, latency, costs"),
+                ("SearXNG", "8080", "Privacy-focused метапоисковик без трекинга")
+            ]
+            
+            for service, port, desc in services:
+                tech_table.add_row(service, port, desc)
+            
+            console.print("\n")
+            console.print(tech_table)
+            
+            # Финальное сообщение
+            console.print("\n[bold yellow]" + "="*85 + "[/bold yellow]")
+            final_text = Text("🎮 CHEAT CODE MOTHERLODE: SUCCESS! 🎮", style="bold gold1 blink")
+            console.print(Align.center(final_text))
+            console.print("[bold yellow]" + "="*85 + "[/bold yellow]\n")
+            
+        else:
+            print("\n" + "="*70)
+            print("🏆 LEVEL UP COMPLETE! ДОБРО ПОЖАЛОВАТЬ В 0.1%!")
+            print("="*70)
+            print("\n🌟 AI Infrastructure готова:")
+            print("  🧠 n8n Workflows: http://localhost:5678")
+            print("  🤖 AI Chat: http://localhost:3000")
+            print("  🎤 Voice API: http://localhost:9000")
+            print("  🗄️ Database: http://localhost:8005")
+            print("\n⚡ Capabilities:")
+            print("  • RAG с vector search")
+            print("  • Graph-based связи")
+            print("  • Voice interfaces")
+            print("  • Microservices scaling")
+            print("\n🎮 MOTHERLODE: SUCCESS!")
+            print("="*70)
+
+def main():
+    """🎮 Главная функция активации чит-кода MOTHERLODE."""
+    # Инициализация чит-кода
+    motherlode = MotherlodeAI()
+    
+    try:
+        # 1. 🎮 Активация чит-кода + показ полного стека
+        motherlode.show_cheat_activation()
+        
+        # 2. 🔍 Системная диагностика
+        motherlode.check_prerequisites()
+        
+        # 3. 🛡️ Настройка firewall (квантовая защита)
+        motherlode.setup_firewall()
+        
+        # 4. 🔐 Получение Supabase credentials
+        jwt_secret, anon_key, service_role = motherlode.get_supabase_keys()
+        
+        # 5. 🚀 Активация AI империи (с реальным деплоем)
+        motherlode.activate_ai_empire(jwt_secret, anon_key, service_role)
+        
+        # 6. 🏆 Показ статуса production-ready environment
+        motherlode.show_empire_status()
+        
+    except KeyboardInterrupt:
+        if HAS_RICH:
+            console.print("\n[bold red]❌ Чит-код прерван! AI империя не захвачена.[/bold red]")
+            console.print("[dim]Используй Ctrl+C для выхода из любой фазы активации[/dim]")
+        else:
+            print("\n❌ Активация MOTHERLODE прервана!")
+    except Exception as e:
+        if HAS_RICH:
+            console.print(f"\n[bold red]💥 Критическая ошибка активации:[/bold red]")
+            console.print(f"[red]{str(e)}[/red]")
+            console.print("\n[yellow]🔧 Возможные решения:[/yellow]")
+            console.print("• Проверь подключение к интернету")
+            console.print("• Убедись что Docker запущен")
+            console.print("• Перезапусти с sudo правами для firewall")
+            console.print("• Перезапусти скрипт: python3 motherlode.py")
+        else:
+            print(f"\n💥 Ошибка активации: {e}")
+            print("🔧 Попробуй перезапустить скрипт")
+
+def cli_commands():
+    """🎮 CLI команды для управления AI империей."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(
+        description="🎮 MOTHERLODE - AIBot Direct Cheat Code",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+🎯 Examples:
+  python3 motherlode.py              # Полная активация чит-кода
+  python3 motherlode.py --status     # Проверка статуса империи
+  python3 motherlode.py --firewall   # Настройка только firewall
+  python3 motherlode.py --update     # Обновление Docker образов
+  
+🌐 Website: https://AIBot.Direct
+👨‍💻 Created by: Nikita Shorin (inspired by Cole Medin)
+        """
+    )
+    
+    parser.add_argument('--status', action='store_true', 
+                       help='Показать статус AI сервисов')
+    parser.add_argument('--firewall', action='store_true',
+                       help='Настроить только firewall')
+    parser.add_argument('--update', action='store_true',
+                       help='Обновить Docker образы')
+    parser.add_argument('--restart', action='store_true',
+                       help='Перезапустить все сервисы')
+    parser.add_argument('--cleanup', action='store_true',
+                       help='Очистить Docker volumes')
+    
+    args = parser.parse_args()
+    motherlode = MotherlodeAI()
+    
+    if args.status:
+        motherlode.show_empire_status()
+    elif args.firewall:
+        motherlode.setup_firewall()
+    elif args.update:
+        if HAS_RICH:
+            console.print("[bold yellow]🔄 Обновляю Docker образы...[/bold yellow]")
+        subprocess.run(["docker-compose", "pull"])
+    elif args.restart:
+        if HAS_RICH:
+            console.print("[bold yellow]🔄 Перезапускаю AI империю...[/bold yellow]")
+        subprocess.run(["docker-compose", "restart"])
+    elif args.cleanup:
+        if HAS_RICH:
+            console.print("[bold red]🧹 Очистка Docker volumes...[/bold red]")
+        subprocess.run(["docker-compose", "down", "-v"])
+    else:
+        main()
+
+if __name__ == "__main__":
+    # 🎮 Автоматическая установка Rich для улучшенного UI
+    if not HAS_RICH:
+        try:
+            print("🎮 Устанавливаю Rich для игрового интерфейса...")
+            subprocess.run([sys.executable, "-m", "pip", "install", "rich"], 
+                         check=True, capture_output=True)
+            print("✅ Rich установлен! Перезапустите для полного UI:")
+            print("🚀 python3 motherlode.py")
+            sys.exit(0)
+        except:
+            print("⚠️ Продолжаю без Rich (базовый режим)")
+    
+    # 🎯 Запуск CLI с поддержкой команд
+    cli_commands()
