@@ -311,7 +311,7 @@ class MotherlodeAI:
             console.print("\n[bold yellow]🔧 Конфигурирую защиту...[/bold yellow]")
             
             firewall_commands = [
-                ("ufw enable", "Активация файрвола"),
+                ("ufw --force enable", "Активация файрвола"),
                 ("ufw allow 22", "SSH доступ"),
                 ("ufw allow 80", "HTTP трафик"),
                 ("ufw allow 443", "HTTPS трафик"),
@@ -319,13 +319,16 @@ class MotherlodeAI:
                 ("ufw allow 5678", "n8n editor"),
                 ("ufw allow 8005", "Supabase"),
                 ("ufw allow 9000", "Whisper API"),
-                ("ufw reload", "Перезагрузка правил")
+                ("ufw --force reload", "Перезагрузка правил")
             ]
             
             for cmd, desc in track(firewall_commands, description="[green]Setting up quantum defense..."):
                 try:
-                    subprocess.run(cmd.split(), capture_output=True, check=True)
+                    # Добавляем timeout чтобы избежать зависания
+                    subprocess.run(cmd.split(), capture_output=True, check=True, timeout=10)
                     console.print(f"[green]✅ {desc}[/green]")
+                except subprocess.TimeoutExpired:
+                    console.print(f"[yellow]⏱️ {desc} (timeout - возможно требует ручной настройки)[/yellow]")
                 except subprocess.CalledProcessError:
                     console.print(f"[yellow]⚠️ {desc} (возможно уже настроено)[/yellow]")
                 except:
@@ -337,9 +340,30 @@ class MotherlodeAI:
         else:
             print("\n🛡️ НАСТРОЙКА FIREWALL:")
             print("🔧 Открываю необходимые порты...")
-            ports = [22, 80, 443, 3000, 5678, 8005, 9000]
-            for port in ports:
-                print(f"🔓 Порт {port} - открыт")
+            
+            firewall_commands = [
+                ("ufw --force enable", "Активация файрвола"),
+                ("ufw allow 22", "SSH доступ"),
+                ("ufw allow 80", "HTTP трафик"),
+                ("ufw allow 443", "HTTPS трафик"),
+                ("ufw allow 3000", "OpenWebUI"),
+                ("ufw allow 5678", "n8n editor"),
+                ("ufw allow 8005", "Supabase"),
+                ("ufw allow 9000", "Whisper API"),
+                ("ufw --force reload", "Перезагрузка правил")
+            ]
+            
+            for cmd, desc in firewall_commands:
+                try:
+                    subprocess.run(cmd.split(), capture_output=True, check=True, timeout=10)
+                    print(f"✅ {desc}")
+                except subprocess.TimeoutExpired:
+                    print(f"⏱️ {desc} (timeout)")
+                except subprocess.CalledProcessError:
+                    print(f"⚠️ {desc} (возможно уже настроено)")
+                except:
+                    print(f"⏭️ {desc} (пропущено - нет sudo)")
+                time.sleep(0.2)
 
     def get_supabase_keys(self):
         """🔐 Шаг 1: Supabase credentials."""
