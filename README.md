@@ -222,9 +222,27 @@ python3 motherlode.py
 - 💬 **Telegram**: @aibot_direct_support  
 - 📧 **Email**: support@aibot.direct
 
+### 🙏 **Благодарности**
+
+**Особая благодарность [Cole Medin](https://github.com/coleam00)** за создание гениальной архитектуры [local-ai-packaged](https://github.com/coleam00/local-ai-packaged)!
+
+**Что создал Cole Medin:**
+- 🐳 Docker Compose архитектура для AI сервисов
+- 🗄️ Интеграция Supabase + n8n + Ollama  
+- 🔗 Революционный n8n_pipe.py (OpenWebUI↔n8n)
+- 🚀 Автоматизация запуска через start_services.py
+
+**Что добавил AIBot Direct:**
+- 🎮 Motherlode.py с игровым интерфейсом
+- 🤖 Alenushka - русскоязычная AI помощница
+- 🎤 Whisper интеграция для голосового управления  
+- 🏢 Готовые решения для российского бизнеса
+- 🔐 Автоматическая генерация безопасных секретов
+- 🇷🇺 Полная русская локализация
+
 ### 📜 **Лицензия**
 Apache License 2.0  
-_Создано на базе open-source проектов с сохранением всех авторских прав_
+_AIBot Direct - это развитие идей Cole Medin для российского рынка с сохранением всех авторских прав_
 
 ---
 
