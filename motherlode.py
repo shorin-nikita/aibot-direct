@@ -635,6 +635,7 @@ SERVICE_ROLE_KEY={service_role}
 
     def activate_ai_empire(self):
         """🚀 Запуск всей AI империи через Docker Compose."""
+        deployment_success = False
         
         empire_phases = [
             ("🔍 Docker image pull", "Скачивание готовых контейнеров"),
@@ -678,9 +679,11 @@ SERVICE_ROLE_KEY={service_role}
                 
                 if result.returncode == 0:
                     console.print("[bold green]✅ Infrastructure deployed successfully![/bold green]")
+                    deployment_success = True
                 else:
                     console.print(f"[red]❌ Deployment failed (exit code: {result.returncode})[/red]")
                     console.print("[yellow]🔧 Попробуйте: docker-compose up -d[/yellow]")
+                    deployment_success = False
                     
             except FileNotFoundError:
                 console.print("[red]❌ start_services.py not found![/red]")
@@ -690,13 +693,19 @@ SERVICE_ROLE_KEY={service_role}
                 try:
                     subprocess.run(["docker-compose", "up", "-d"], check=True, timeout=None)
                     console.print("[bold green]✅ Docker Compose запущен![/bold green]")
+                    deployment_success = True
                 except subprocess.CalledProcessError as e:
                     console.print(f"[red]❌ Docker Compose failed: {e}[/red]")
+                    deployment_success = False
                 except FileNotFoundError:
                     console.print("[red]❌ Docker Compose не найден![/red]")
+                    deployment_success = False
                     
-            # Эффект победы
-            victory_text = Text("🏆 AI ИМПЕРИЯ АКТИВИРОВАНА! 🏆", style="bold gold1 blink")
+            # Эффект победы или поражения
+            if deployment_success:
+                victory_text = Text("🏆 AI ИМПЕРИЯ АКТИВИРОВАНА! 🏆", style="bold gold1 blink")
+            else:
+                victory_text = Text("❌ AI ИМПЕРИЯ НЕ АКТИВИРОВАНА! ❌", style="bold red blink")
             console.print(Align.center(victory_text))
             
         else:
@@ -715,9 +724,11 @@ SERVICE_ROLE_KEY={service_role}
                 
                 if result.returncode == 0:
                     print("✅ Infrastructure deployed successfully!")
+                    deployment_success = True
                 else:
                     print(f"❌ Deployment failed (exit code: {result.returncode})")
                     print("🔧 Попробуйте: docker-compose up -d")
+                    deployment_success = False
                     
             except FileNotFoundError:
                 print("❌ start_services.py not found!")
@@ -726,12 +737,21 @@ SERVICE_ROLE_KEY={service_role}
                 try:
                     subprocess.run(["docker-compose", "up", "-d"], check=True, timeout=None)
                     print("✅ Docker Compose запущен!")
+                    deployment_success = True
                 except subprocess.CalledProcessError as e:
                     print(f"❌ Docker Compose failed: {e}")
+                    deployment_success = False
                 except FileNotFoundError:
                     print("❌ Docker Compose не найден!")
+                    deployment_success = False
             
-            print("\n🏆 AI ИМПЕРИЯ АКТИВИРОВАНА!")
+            if deployment_success:
+                print("\n🏆 AI ИМПЕРИЯ АКТИВИРОВАНА!")
+            else:
+                print("\n❌ AI ИМПЕРИЯ НЕ АКТИВИРОВАНА!")
+                print("🔧 Установите Docker и повторите запуск")
+        
+        return deployment_success
 
     def read_env_domains(self):
         """📖 Читает домены из .env файла."""
@@ -748,30 +768,49 @@ SERVICE_ROLE_KEY={service_role}
             pass
         return domains
 
-    def show_empire_status(self):
+    def show_empire_status(self, deployment_success=True):
         """🏆 Production-ready environment status."""
         # Читаем домены из .env файла
         env_domains = self.read_env_domains()
         
-        # Определяем URL'ы на основе .env
-        n8n_url = f"https://{env_domains.get('N8N_HOSTNAME', 'localhost:5678')}"
-        webui_url = f"https://{env_domains.get('WEBUI_HOSTNAME', 'localhost:3000')}"
-        supabase_url = f"https://{env_domains.get('SUPABASE_HOSTNAME', 'localhost:8005')}"
-        whisper_url = "http://localhost:9000"  # Whisper обычно без SSL
+        # Получаем IP адрес сервера для fallback
+        try:
+            import subprocess
+            result = subprocess.run(['curl', '-s', 'ifconfig.me'], capture_output=True, text=True, timeout=5)
+            server_ip = result.stdout.strip() if result.returncode == 0 else "YOUR_SERVER_IP"
+        except:
+            server_ip = "YOUR_SERVER_IP"
         
-        # Если нет доменов, используем localhost
-        if not env_domains.get('N8N_HOSTNAME'):
-            n8n_url = "http://localhost:5678"
-        if not env_domains.get('WEBUI_HOSTNAME'):
-            webui_url = "http://localhost:3000"
-        if not env_domains.get('SUPABASE_HOSTNAME'):
-            supabase_url = "http://localhost:8005"
+        # Определяем URL'ы на основе .env
+        if env_domains.get('N8N_HOSTNAME'):
+            n8n_url = f"https://{env_domains['N8N_HOSTNAME']}"
+        else:
+            n8n_url = f"http://{server_ip}:5678"
+            
+        if env_domains.get('WEBUI_HOSTNAME'):
+            webui_url = f"https://{env_domains['WEBUI_HOSTNAME']}"
+        else:
+            webui_url = f"http://{server_ip}:3000"
+            
+        if env_domains.get('SUPABASE_HOSTNAME'):
+            supabase_url = f"https://{env_domains['SUPABASE_HOSTNAME']}"
+        else:
+            supabase_url = f"http://{server_ip}:8005"
+            
+        whisper_url = f"http://{server_ip}:9000"  # Whisper всегда по IP
             
         if HAS_RICH:
+            # Статус в зависимости от успеха deployment
+            if deployment_success:
+                status_text = "[bold gold1]🏆 LEVEL UP COMPLETE! ДОБРО ПОЖАЛОВАТЬ В 0.1%! 🏆[/bold gold1]\n\n[bold cyan]⚡ Готовая AI инфраструктура:[/bold cyan]\n\n"
+                border_color = "gold1"
+            else:
+                status_text = "[bold red]❌ DEPLOYMENT FAILED! ИМПЕРИЯ НЕ АКТИВИРОВАНА! ❌[/bold red]\n\n[bold yellow]⚠️ AI инфраструктура НЕ готова:[/bold yellow]\n\n"
+                border_color = "red"
+            
             # Главный статус
             empire_panel = Panel(
-                "[bold gold1]🏆 LEVEL UP COMPLETE! ДОБРО ПОЖАЛОВАТЬ В 0.1%! 🏆[/bold gold1]\n\n"
-                "[bold cyan]⚡ Готовая AI инфраструктура:[/bold cyan]\n\n"
+                status_text + 
                 
                 "[yellow]🧠 AI INTERFACES:[/yellow]\n"
                 f"• [bold white]n8n Workflows:[/bold white] {n8n_url}\n"
@@ -796,8 +835,8 @@ SERVICE_ROLE_KEY={service_role}
                 
                 "[bold red]🧠 Full-stack AI platform:[/bold red] от voice input до automated actions\n"
                 "[bold gold1]⚡ Welcome to the automation layer! ⚡[/bold gold1]",
-                title="🎯 Production-Ready AI Infrastructure",
-                border_style="gold1",
+                title="🎯 Production-Ready AI Infrastructure" if deployment_success else "❌ Deployment Status",
+                border_style=border_color,
                 width=85
             )
             console.print(empire_panel)
@@ -832,15 +871,23 @@ SERVICE_ROLE_KEY={service_role}
             
             # Финальное сообщение
             console.print("\n[bold yellow]" + "="*85 + "[/bold yellow]")
-            final_text = Text("🎮 CHEAT CODE MOTHERLODE: SUCCESS! 🎮", style="bold gold1 blink")
+            if deployment_success:
+                final_text = Text("🎮 CHEAT CODE MOTHERLODE: SUCCESS! 🎮", style="bold gold1 blink")
+            else:
+                final_text = Text("🚨 CHEAT CODE MOTHERLODE: FAILED! 🚨", style="bold red blink")
             console.print(Align.center(final_text))
             console.print("[bold yellow]" + "="*85 + "[/bold yellow]\n")
             
         else:
             print("\n" + "="*70)
-            print("🏆 LEVEL UP COMPLETE! ДОБРО ПОЖАЛОВАТЬ В 0.1%!")
-            print("="*70)
-            print("\n🌟 AI Infrastructure готова:")
+            if deployment_success:
+                print("🏆 LEVEL UP COMPLETE! ДОБРО ПОЖАЛОВАТЬ В 0.1%!")
+                print("="*70)
+                print("\n🌟 AI Infrastructure готова:")
+            else:
+                print("❌ DEPLOYMENT FAILED! ИМПЕРИЯ НЕ АКТИВИРОВАНА!")
+                print("="*70)
+                print("\n⚠️ AI Infrastructure НЕ готова (нужен Docker):")
             print(f"  🧠 n8n Workflows: {n8n_url}")
             print(f"  🤖 AI Chat: {webui_url}")
             print(f"  🎤 Voice API: {whisper_url}")
@@ -850,7 +897,11 @@ SERVICE_ROLE_KEY={service_role}
             print("  • Graph-based связи")
             print("  • Voice interfaces")
             print("  • Microservices scaling")
-            print("\n🎮 MOTHERLODE: SUCCESS!")
+            if deployment_success:
+                print("\n🎮 MOTHERLODE: SUCCESS!")
+            else:
+                print("\n🚨 MOTHERLODE: FAILED!")
+                print("🔧 Установите Docker и повторите запуск")
             print("="*70)
 
 def main():
@@ -881,10 +932,10 @@ def main():
         motherlode.generate_env_file(jwt_secret, anon_key, service_role, domains)
         
         # 8. 🚀 Активация AI империи (с реальным деплоем)
-        motherlode.activate_ai_empire()
+        deployment_success = motherlode.activate_ai_empire()
         
         # 9. 🏆 Показ статуса production-ready environment
-        motherlode.show_empire_status()
+        motherlode.show_empire_status(deployment_success)
         
     except KeyboardInterrupt:
         if HAS_RICH:
