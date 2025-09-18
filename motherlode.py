@@ -646,16 +646,30 @@ SERVICE_ROLE_KEY={service_role}
             # Реальный запуск через start_services.py
             try:
                 console.print("\n[bold yellow]🔧 Запускаю infrastructure через start_services.py...[/bold yellow]")
+                console.print("[dim]Это может занять 5-10 минут для первого запуска...[/dim]")
+                
+                # Запуск без timeout для полной установки
                 result = subprocess.run([sys.executable, "start_services.py"], 
-                                      capture_output=True, text=True, timeout=30)
+                                      text=True, timeout=None)
+                
                 if result.returncode == 0:
                     console.print("[bold green]✅ Infrastructure deployed successfully![/bold green]")
                 else:
-                    console.print(f"[yellow]⚠️ Services starting (exit code: {result.returncode})[/yellow]")
-            except subprocess.TimeoutExpired:
-                console.print("[yellow]⚠️ Services starting in background...[/yellow]")
+                    console.print(f"[red]❌ Deployment failed (exit code: {result.returncode})[/red]")
+                    console.print("[yellow]🔧 Попробуйте: docker-compose up -d[/yellow]")
+                    
             except FileNotFoundError:
-                console.print("[yellow]⚠️ start_services.py not found, continuing...[/yellow]")
+                console.print("[red]❌ start_services.py not found![/red]")
+                console.print("[yellow]🔧 Fallback: Запускаю docker-compose напрямую...[/yellow]")
+                
+                # Fallback: прямой вызов docker-compose
+                try:
+                    subprocess.run(["docker-compose", "up", "-d"], check=True, timeout=None)
+                    console.print("[bold green]✅ Docker Compose запущен![/bold green]")
+                except subprocess.CalledProcessError as e:
+                    console.print(f"[red]❌ Docker Compose failed: {e}[/red]")
+                except FileNotFoundError:
+                    console.print("[red]❌ Docker Compose не найден![/red]")
                     
             # Эффект победы
             victory_text = Text("🏆 AI ИМПЕРИЯ АКТИВИРОВАНА! 🏆", style="bold gold1 blink")
@@ -667,6 +681,32 @@ SERVICE_ROLE_KEY={service_role}
             for i, (phase, desc) in enumerate(empire_phases, 1):
                 print(f"[{i}/{len(empire_phases)}] {phase}")
                 time.sleep(0.5)
+            
+            # Реальный запуск для базового режима
+            print("\n🔧 Запускаю infrastructure через start_services.py...")
+            print("⏳ Это может занять 5-10 минут для первого запуска...")
+            
+            try:
+                result = subprocess.run([sys.executable, "start_services.py"], timeout=None)
+                
+                if result.returncode == 0:
+                    print("✅ Infrastructure deployed successfully!")
+                else:
+                    print(f"❌ Deployment failed (exit code: {result.returncode})")
+                    print("🔧 Попробуйте: docker-compose up -d")
+                    
+            except FileNotFoundError:
+                print("❌ start_services.py not found!")
+                print("🔧 Fallback: Запускаю docker-compose напрямую...")
+                
+                try:
+                    subprocess.run(["docker-compose", "up", "-d"], check=True, timeout=None)
+                    print("✅ Docker Compose запущен!")
+                except subprocess.CalledProcessError as e:
+                    print(f"❌ Docker Compose failed: {e}")
+                except FileNotFoundError:
+                    print("❌ Docker Compose не найден!")
+            
             print("\n🏆 AI ИМПЕРИЯ АКТИВИРОВАНА!")
 
     def show_empire_status(self):
