@@ -733,8 +733,40 @@ SERVICE_ROLE_KEY={service_role}
             
             print("\n🏆 AI ИМПЕРИЯ АКТИВИРОВАНА!")
 
+    def read_env_domains(self):
+        """📖 Читает домены из .env файла."""
+        domains = {}
+        try:
+            with open('.env', 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if '=' in line and not line.startswith('#'):
+                        key, value = line.split('=', 1)
+                        if 'HOSTNAME' in key or 'EMAIL' in key:
+                            domains[key] = value
+        except FileNotFoundError:
+            pass
+        return domains
+
     def show_empire_status(self):
         """🏆 Production-ready environment status."""
+        # Читаем домены из .env файла
+        env_domains = self.read_env_domains()
+        
+        # Определяем URL'ы на основе .env
+        n8n_url = f"https://{env_domains.get('N8N_HOSTNAME', 'localhost:5678')}"
+        webui_url = f"https://{env_domains.get('WEBUI_HOSTNAME', 'localhost:3000')}"
+        supabase_url = f"https://{env_domains.get('SUPABASE_HOSTNAME', 'localhost:8005')}"
+        whisper_url = "http://localhost:9000"  # Whisper обычно без SSL
+        
+        # Если нет доменов, используем localhost
+        if not env_domains.get('N8N_HOSTNAME'):
+            n8n_url = "http://localhost:5678"
+        if not env_domains.get('WEBUI_HOSTNAME'):
+            webui_url = "http://localhost:3000"
+        if not env_domains.get('SUPABASE_HOSTNAME'):
+            supabase_url = "http://localhost:8005"
+            
         if HAS_RICH:
             # Главный статус
             empire_panel = Panel(
@@ -742,13 +774,13 @@ SERVICE_ROLE_KEY={service_role}
                 "[bold cyan]⚡ Готовая AI инфраструктура:[/bold cyan]\n\n"
                 
                 "[yellow]🧠 AI INTERFACES:[/yellow]\n"
-                "• [bold white]n8n Workflows:[/bold white] http://localhost:5678\n"
+                f"• [bold white]n8n Workflows:[/bold white] {n8n_url}\n"
                 "  [dim]Visual programming для automation (Zapier на стероидах)[/dim]\n"
-                "• [bold white]LLM Chat Interface:[/bold white] http://localhost:3000\n"
+                f"• [bold white]LLM Chat Interface:[/bold white] {webui_url}\n"
                 "  [dim]OpenWebUI для общения с локальными моделями (личный ChatGPT)[/dim]\n"
-                "• [bold white]Speech API:[/bold white] http://localhost:9000\n"
+                f"• [bold white]Speech API:[/bold white] {whisper_url}\n"
                 "  [dim]Whisper endpoints для voice-to-text и обратно (голосовой API)[/dim]\n"
-                "• [bold white]Database Admin:[/bold white] http://localhost:8005\n"
+                f"• [bold white]Database Admin:[/bold white] {supabase_url}\n"
                 "  [dim]Supabase dashboard для управления данными (phpMyAdmin для PostgreSQL)[/dim]\n\n"
                 
                 "[green]💼 CAPABILITIES:[/green]\n"
@@ -758,8 +790,8 @@ SERVICE_ROLE_KEY={service_role}
                 "• [bright_green]Horizontal scaling[/bright_green] через microservices architecture\n\n"
                 
                 "[blue]🎮 QUICK START:[/blue]\n"
-                "1. [white]localhost:3000[/white] - chat с AI моделями\n"
-                "2. [white]localhost:5678[/white] - создай automation workflow\n"
+                f"1. [white]{webui_url}[/white] - chat с AI моделями\n"
+                f"2. [white]{n8n_url}[/white] - создай automation workflow\n"
                 "3. [white]Import production templates[/white] из репозитория\n\n"
                 
                 "[bold red]🧠 Full-stack AI platform:[/bold red] от voice input до automated actions\n"
@@ -809,10 +841,10 @@ SERVICE_ROLE_KEY={service_role}
             print("🏆 LEVEL UP COMPLETE! ДОБРО ПОЖАЛОВАТЬ В 0.1%!")
             print("="*70)
             print("\n🌟 AI Infrastructure готова:")
-            print("  🧠 n8n Workflows: http://localhost:5678")
-            print("  🤖 AI Chat: http://localhost:3000")
-            print("  🎤 Voice API: http://localhost:9000")
-            print("  🗄️ Database: http://localhost:8005")
+            print(f"  🧠 n8n Workflows: {n8n_url}")
+            print(f"  🤖 AI Chat: {webui_url}")
+            print(f"  🎤 Voice API: {whisper_url}")
+            print(f"  🗄️ Database: {supabase_url}")
             print("\n⚡ Capabilities:")
             print("  • RAG с vector search")
             print("  • Graph-based связи")
