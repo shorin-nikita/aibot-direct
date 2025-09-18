@@ -342,92 +342,199 @@ class MotherlodeAI:
                 print(f"🔓 Порт {port} - открыт")
 
     def get_supabase_keys(self):
-        """🔐 Финальная активация - Supabase credentials."""
+        """🔐 Шаг 1: Supabase credentials."""
         if HAS_RICH:
             keys_panel = Panel(
-                "[bold red]🔐 ФИНАЛЬНАЯ АКТИВАЦИЯ - ВХОД В 0.1%[/bold red]\n\n"
-                "[yellow]⚡ PrideAIBot Premium - это не просто библиотека готовых решений,[/yellow]\n"
-                "[yellow]а среда, где энергия LLM трансформируется в масштаб бизнеса.[/yellow]\n\n"
+                "[bold red]🔐 ШАГ 1: БАЗОВАЯ АКТИВАЦИЯ[/bold red]\n\n"
                 "[blue]📖 Generation guide для Supabase API keys:[/blue]\n"
                 "[link=https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys]https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys[/link]\n\n"
-                "[green]💎 1 минута настройки = пожизненная автоматизация![/green]\n\n"
                 "[bold white]🎯 Триада власти (JWT-based authentication):[/bold white]\n"
                 "• [yellow]JWT_SECRET[/yellow] - ключ для подписи JSON Web Tokens (минимум 32 символа)\n"
-                "  [dim]Криптографический ключ для верификации токенов (подпись директора банка)[/dim]\n"
                 "• [blue]ANON_KEY[/blue] - анонимный API ключ для public доступа\n"
-                "  [dim]Row Level Security ключ для клиентских приложений (пропуск в общий зал)[/dim]\n"
-                "• [red]SERVICE_ROLE_KEY[/red] - административный ключ с полными правами\n"
-                "  [dim]Bypass RLS, полный доступ к API и данным (мастер-ключ от всего)[/dim]\n\n"
-                "[cyan]🧠 Security model: JWT-based authentication с Role-Based Access Control[/cyan]",
+                "• [red]SERVICE_ROLE_KEY[/red] - административный ключ с полными правами",
                 title="🏆 Supabase API Credentials",
                 border_style="red",
                 width=80
             )
             console.print(keys_panel)
             
-            # Красивый ввод ключей с валидацией
-            console.print("\n[bold gold1]💎 Введите ключи для активации AI империи:[/bold gold1]")
+            console.print("\n[bold gold1]💎 Введите ключи:[/bold gold1]")
             
             jwt_secret = Prompt.ask(
-                "\n[bold yellow]🔑 JWT_SECRET[/bold yellow] (минимум 32 символа для криптографической стойкости)",
+                "\n[bold yellow]🔑 JWT_SECRET[/bold yellow] (минимум 32 символа)",
                 password=True,
                 console=console
             )
             while len(jwt_secret) < 32:
-                console.print("[red]❌ Недостаточно символов! JWT требует минимум 32 символа для безопасности[/red]")
+                console.print("[red]❌ Минимум 32 символа![/red]")
                 jwt_secret = Prompt.ask("[bold yellow]🔑 JWT_SECRET[/bold yellow]", password=True, console=console)
             
             anon_key = Prompt.ask(
-                "[bold blue]🔓 ANON_KEY[/bold blue] (получен из Supabase Dashboard → Settings → API)",
+                "[bold blue]🔓 ANON_KEY[/bold blue] (из Supabase Dashboard)",
                 console=console
             )
             while not anon_key.startswith("eyJ"):
-                console.print("[red]❌ Неверный формат! JWT токен должен начинаться с 'eyJ'[/red]")
+                console.print("[red]❌ Должен начинаться с 'eyJ'[/red]")
                 anon_key = Prompt.ask("[bold blue]🔓 ANON_KEY[/bold blue]", console=console)
             
             service_role = Prompt.ask(
-                "[bold red]🔐 SERVICE_ROLE_KEY[/bold red] (получен из Supabase Dashboard → Settings → API)",
+                "[bold red]🔐 SERVICE_ROLE_KEY[/bold red] (из Supabase Dashboard)",
                 password=True,
                 console=console
             )
             while not service_role.startswith("eyJ"):
-                console.print("[red]❌ Неверный формат! JWT токен должен начинаться с 'eyJ'[/red]")
+                console.print("[red]❌ Должен начинаться с 'eyJ'[/red]")
                 service_role = Prompt.ask("[bold red]🔐 SERVICE_ROLE_KEY[/bold red]", password=True, console=console)
             
-            success_panel = Panel(
-                "[bold green]✅ КЛЮЧИ К AI ИМПЕРИИ ПОЛУЧЕНЫ![/bold green]\n\n"
-                "[yellow]🎯 Твоя конфигурация:[/yellow]\n"
-                f"• [green]JWT_SECRET:[/green] {len(jwt_secret)} символов ✅\n"
-                f"• [blue]ANON_KEY:[/blue] {anon_key[:20]}... ✅\n"
-                f"• [red]SERVICE_ROLE_KEY:[/red] {service_role[:20]}... ✅\n\n"
-                "[bold gold1]🚀 Активирую чит-код MOTHERLODE...[/bold gold1]",
-                title="🔐 Keys Validated",
-                border_style="green"
-            )
-            console.print(success_panel)
-            
         else:
-            print("\n🔐 ФИНАЛЬНАЯ АКТИВАЦИЯ - SUPABASE KEYS")
+            print("\n🔐 ШАГ 1: SUPABASE KEYS")
             print("📖 Guide: https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys")
-            print("🎯 Нужны 3 JWT токена для полного доступа:")
             
             jwt_secret = input("\n🔑 JWT_SECRET (32+ символов): ").strip()
             while len(jwt_secret) < 32:
-                print("❌ Минимум 32 символа для безопасности!")
+                print("❌ Минимум 32 символа!")
                 jwt_secret = input("🔑 JWT_SECRET: ").strip()
                 
             anon_key = input("🔓 ANON_KEY (начинается с eyJ): ").strip()
             service_role = input("🔐 SERVICE_ROLE_KEY (начинается с eyJ): ").strip()
-            print("✅ Ключи получены!")
             
         return jwt_secret, anon_key, service_role
 
-    def generate_env_file(self, jwt_secret, anon_key, service_role):
-        """💎 Генерация .env файла с автоматическими секретами."""
+    def choose_deployment_mode(self):
+        """🎯 Шаг 2: Выбор режима развертывания."""
+        if HAS_RICH:
+            mode_panel = Panel(
+                "[bold green]✅ ОБЯЗАТЕЛЬНАЯ ПРОГРАММА МИНИМУМ ВЫПОЛНЕНА![/bold green]\n\n"
+                "[yellow]🎯 Базовые ключи получены. Система готова к запуску![/yellow]\n"
+                "[cyan]Но можно выполнить дополнительные настройки для полной активации...[/cyan]\n\n"
+                "[bold white]🚀 Выберите режим развертывания:[/bold white]\n"
+                "• [green]МИНИМУМ[/green] - быстрый запуск с основными доменами\n"
+                "  [dim]N8N + Supabase + email (3 домена)[/dim]\n"
+                "• [gold1]МАКСИМУМ[/gold1] - полная настройка всех сервисов\n"
+                "  [dim]Все 8 доменов + SSL + кастомизация[/dim]",
+                title="🎮 Режим развертывания",
+                border_style="blue",
+                width=80
+            )
+            console.print(mode_panel)
+            
+            mode = Prompt.ask(
+                "\n[bold cyan]🎯 Ваш выбор[/bold cyan]",
+                choices=["минимум", "максимум", "minimum", "maximum", "min", "max"],
+                default="минимум",
+                console=console
+            )
+            
+        else:
+            print("\n✅ ОБЯЗАТЕЛЬНАЯ ПРОГРАММА МИНИМУМ ВЫПОЛНЕНА!")
+            print("🎯 Базовые ключи получены. Система готова к запуску!")
+            print("Но можно выполнить дополнительные настройки...")
+            print("\n🚀 Выберите режим:")
+            print("• МИНИМУМ - быстрый запуск (3 домена)")
+            print("• МАКСИМУМ - полная настройка (8 доменов)")
+            
+            mode = input("\n🎯 Ваш выбор (минимум/максимум): ").strip().lower()
+            
+        return mode in ['минимум', 'minimum', 'min']
+
+    def get_domain_configuration(self, is_minimal):
+        """🌐 Запрос доменов в зависимости от режима."""
+        domains = {}
+        
+        if HAS_RICH:
+            console.print(f"\n[bold {'green' if is_minimal else 'gold1'}]🌐 {'МИНИМАЛЬНАЯ' if is_minimal else 'ПОЛНАЯ'} НАСТРОЙКА ДОМЕНОВ[/bold {'green' if is_minimal else 'gold1'}]")
+            
+            ip_panel = Panel(
+                "[bold red]⚠️ ВАЖНО: Настройка DNS[/bold red]\n\n"
+                "[yellow]Для каждого домена создайте А-запись в DNS:[/yellow]\n"
+                "• [cyan]Тип записи:[/cyan] A\n"
+                "• [green]Имя:[/green] поддомен (n8n, supabase, etc.)\n"
+                "• [blue]Значение:[/blue] IP адрес вашего сервера\n\n"
+                "[bold white]Узнать IP сервера:[/bold white] [dim]curl ifconfig.me[/dim]",
+                title="🌍 DNS Configuration",
+                border_style="yellow"
+            )
+            console.print(ip_panel)
+            
+            # Обязательные домены для минимума
+            domains['n8n'] = Prompt.ask(
+                "[bold green]🔧 N8N_HOSTNAME[/bold green] (например: n8n.yourdomain.com)",
+                console=console
+            )
+            
+            domains['supabase'] = Prompt.ask(
+                "[bold blue]🗄️ SUPABASE_HOSTNAME[/bold blue] (например: supabase.yourdomain.com)",
+                console=console
+            )
+            
+            domains['email'] = Prompt.ask(
+                "[bold yellow]📧 LETSENCRYPT_EMAIL[/bold yellow] (ваш email для SSL)",
+                console=console
+            )
+            
+            if not is_minimal:
+                # Дополнительные домены для максимума
+                domains['webui'] = Prompt.ask(
+                    "[bold cyan]💬 WEBUI_HOSTNAME[/bold cyan] (например: chat.yourdomain.com)",
+                    default="",
+                    console=console
+                )
+                
+                domains['flowise'] = Prompt.ask(
+                    "[bold purple]🌊 FLOWISE_HOSTNAME[/bold purple] (например: flow.yourdomain.com)",
+                    default="",
+                    console=console
+                )
+                
+                domains['langfuse'] = Prompt.ask(
+                    "[bold orange1]📊 LANGFUSE_HOSTNAME[/bold orange1] (например: analytics.yourdomain.com)",
+                    default="",
+                    console=console
+                )
+                
+                domains['ollama'] = Prompt.ask(
+                    "[bold red]🦙 OLLAMA_HOSTNAME[/bold red] (например: llm.yourdomain.com)",
+                    default="",
+                    console=console
+                )
+                
+                domains['searxng'] = Prompt.ask(
+                    "[bold green]🔍 SEARXNG_HOSTNAME[/bold green] (например: search.yourdomain.com)",
+                    default="",
+                    console=console
+                )
+                
+                domains['neo4j'] = Prompt.ask(
+                    "[bold gold1]🕸️ NEO4J_HOSTNAME[/bold gold1] (например: graph.yourdomain.com)",
+                    default="",
+                    console=console
+                )
+        else:
+            print(f"\n🌐 {'МИНИМАЛЬНАЯ' if is_minimal else 'ПОЛНАЯ'} НАСТРОЙКА ДОМЕНОВ")
+            print("⚠️ Создайте А-записи в DNS для каждого домена!")
+            print("Узнать IP сервера: curl ifconfig.me")
+            
+            domains['n8n'] = input("\n🔧 N8N_HOSTNAME (n8n.yourdomain.com): ").strip()
+            domains['supabase'] = input("🗄️ SUPABASE_HOSTNAME (supabase.yourdomain.com): ").strip()
+            domains['email'] = input("📧 LETSENCRYPT_EMAIL (ваш email): ").strip()
+            
+            if not is_minimal:
+                domains['webui'] = input("💬 WEBUI_HOSTNAME (опционально): ").strip()
+                domains['flowise'] = input("🌊 FLOWISE_HOSTNAME (опционально): ").strip()
+                domains['langfuse'] = input("📊 LANGFUSE_HOSTNAME (опционально): ").strip()
+                domains['ollama'] = input("🦙 OLLAMA_HOSTNAME (опционально): ").strip()
+                domains['searxng'] = input("🔍 SEARXNG_HOSTNAME (опционально): ").strip()
+                domains['neo4j'] = input("🕸️ NEO4J_HOSTNAME (опционально): ").strip()
+                
+        return domains
+
+    def generate_env_file(self, jwt_secret, anon_key, service_role, domains):
+        """💎 Генерация .env файла с автоматическими секретами и доменами."""
         def generate_secret(length=32):
             alphabet = string.ascii_letters + string.digits
             return ''.join(secrets.choice(alphabet) for _ in range(length))
         
+        # Базовый контент
         env_content = f"""# 🎮 AIBot Direct - MOTHERLODE Configuration
 # Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 # Website: https://AIBot.Direct
@@ -444,41 +551,66 @@ JWT_SECRET={jwt_secret}
 ANON_KEY={anon_key}
 SERVICE_ROLE_KEY={service_role}
 
-# 🌐 Hostnames (опционально)
-# N8N_HOSTNAME=n8n.yourdomain.com
-# WEBUI_HOSTNAME=openwebui.yourdomain.com
-# FLOWISE_HOSTNAME=flowise.yourdomain.com
-# SUPABASE_HOSTNAME=supabase.yourdomain.com
-# LANGFUSE_HOSTNAME=langfuse.yourdomain.com
-# OLLAMA_HOSTNAME=ollama.yourdomain.com
-# SEARXNG_HOSTNAME=searxng.yourdomain.com
-# NEO4J_HOSTNAME=neo4j.yourdomain.com
-# LETSENCRYPT_EMAIL=internal
+# 🌐 Настройка доменов
 """
+        
+        # Обязательные домены (всегда раскомментированы если есть)
+        if domains.get('n8n'):
+            env_content += f"N8N_HOSTNAME={domains['n8n']}\n"
+        else:
+            env_content += "# N8N_HOSTNAME=n8n.yourdomain.com\n"
+            
+        if domains.get('supabase'):
+            env_content += f"SUPABASE_HOSTNAME={domains['supabase']}\n"
+        else:
+            env_content += "# SUPABASE_HOSTNAME=supabase.yourdomain.com\n"
+            
+        if domains.get('email'):
+            env_content += f"LETSENCRYPT_EMAIL={domains['email']}\n"
+        else:
+            env_content += "# LETSENCRYPT_EMAIL=internal\n"
+        
+        # Дополнительные домены (раскомментированы только если заполнены)
+        optional_domains = [
+            ('webui', 'WEBUI_HOSTNAME', 'openwebui.yourdomain.com'),
+            ('flowise', 'FLOWISE_HOSTNAME', 'flowise.yourdomain.com'),
+            ('langfuse', 'LANGFUSE_HOSTNAME', 'langfuse.yourdomain.com'),
+            ('ollama', 'OLLAMA_HOSTNAME', 'ollama.yourdomain.com'),
+            ('searxng', 'SEARXNG_HOSTNAME', 'searxng.yourdomain.com'),
+            ('neo4j', 'NEO4J_HOSTNAME', 'neo4j.yourdomain.com')
+        ]
+        
+        for key, env_key, default in optional_domains:
+            if domains.get(key):
+                env_content += f"{env_key}={domains[key]}\n"
+            else:
+                env_content += f"# {env_key}={default}\n"
         
         with open('.env', 'w') as f:
             f.write(env_content)
+        
+        # Подсчет активных доменов
+        active_domains = sum(1 for k in ['n8n', 'supabase', 'email'] if domains.get(k))
+        total_domains = active_domains + sum(1 for k in ['webui', 'flowise', 'langfuse', 'ollama', 'searxng', 'neo4j'] if domains.get(k))
         
         if HAS_RICH:
             env_panel = Panel(
                 "[bold green]✅ КОНФИГУРАЦИЯ ЗАВЕРШЕНА![/bold green]\n\n"
                 "[yellow]📝 Создан файл .env с настройками:[/yellow]\n"
-                f"• [green]N8N_ENCRYPTION_KEY:[/green] {generate_secret(8)}... (32 символа)\n"
-                f"• [blue]POSTGRES_PASSWORD:[/blue] {generate_secret(8)}... (32 символа)\n"
-                f"• [red]JWT_SECRET:[/red] {jwt_secret[:8]}... ({len(jwt_secret)} символов)\n"
-                "• [cyan]И еще 7 автоматических секретов для безопасности[/cyan]\n\n"
-                "[bold gold1]🔐 Все секреты криптографически стойкие![/bold gold1]",
+                f"• [green]Автоматических секретов:[/green] 5 шт. ✅\n"
+                f"• [blue]Supabase ключей:[/blue] 3 шт. ✅\n"
+                f"• [cyan]Активных доменов:[/cyan] {total_domains} из 9 ✅\n"
+                f"• [yellow]Обязательных доменов:[/yellow] {active_domains}/3 ✅\n\n"
+                "[bold gold1]🔐 Система готова к активации![/bold gold1]",
                 title="🏆 Configuration Generated",
                 border_style="green"
             )
             console.print(env_panel)
         else:
-            print("✅ Файл .env создан с автоматическими секретами!")
+            print(f"✅ Файл .env создан! Доменов активно: {total_domains}/9")
 
-    def activate_ai_empire(self, jwt_secret, anon_key, service_role):
+    def activate_ai_empire(self):
         """🚀 Запуск всей AI империи через Docker Compose."""
-        # Генерируем .env файл
-        self.generate_env_file(jwt_secret, anon_key, service_role)
         
         empire_phases = [
             ("🔍 Docker image pull", "Скачивание готовых контейнеров"),
@@ -640,13 +772,22 @@ def main():
         # 3. 🛡️ Настройка firewall (квантовая защита)
         motherlode.setup_firewall()
         
-        # 4. 🔐 Получение Supabase credentials
+        # 4. 🔐 Шаг 1: Получение Supabase credentials
         jwt_secret, anon_key, service_role = motherlode.get_supabase_keys()
         
-        # 5. 🚀 Активация AI империи (с реальным деплоем)
-        motherlode.activate_ai_empire(jwt_secret, anon_key, service_role)
+        # 5. 🎯 Шаг 2: Выбор режима развертывания
+        is_minimal = motherlode.choose_deployment_mode()
         
-        # 6. 🏆 Показ статуса production-ready environment
+        # 6. 🌐 Шаг 3: Настройка доменов
+        domains = motherlode.get_domain_configuration(is_minimal)
+        
+        # 7. 💎 Генерация .env файла с настройками
+        motherlode.generate_env_file(jwt_secret, anon_key, service_role, domains)
+        
+        # 8. 🚀 Активация AI империи (с реальным деплоем)
+        motherlode.activate_ai_empire()
+        
+        # 9. 🏆 Показ статуса production-ready environment
         motherlode.show_empire_status()
         
     except KeyboardInterrupt:
