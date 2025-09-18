@@ -14,11 +14,11 @@ case "${1:-help}" in
         echo "  git_aibot.sh status      - Статус системы"
         echo ""
         echo "Основные команды:"
-        echo "  python aibot_start.py --profile cpu     # Стандартная установка"
+        echo "  python3 motherlode.py                   # 🎮 Игровая установка"
         ;;
     "install")
         echo "🚀 Запускаю установку AIBot Direct..."
-        python3 aibot_start.py --profile cpu
+        python3 motherlode.py
         ;;
     "status")
         echo "📊 Статус AIBot Direct:"

@@ -11,18 +11,10 @@
 
 Установка займёт всего 3 минуты!
 
-### 🎮 **Вариант 1: MOTHERLODE (игровой чит-код)**
 ```bash
-git clone -b stable https://github.com/shorin-nikita/aibot-direct.git
+git clone https://github.com/shorin-nikita/aibot-direct.git
 cd aibot-direct
 python3 motherlode.py
-```
-
-### 🤖 **Вариант 2: Классический**
-```bash
-git clone -b stable https://github.com/shorin-nikita/aibot-direct.git
-cd aibot-direct
-python3 aibot_start.py --profile cpu
 ```
 
 **Готово!** За 3 минуты получите полную AI экосистему с голосовым управлением.
@@ -96,13 +88,13 @@ python3 aibot_start.py --profile cpu
 ### ⚡ Основные команды
 ```bash
 # 🚀 Запуск системы (система спросит только Supabase ключи)
-python aibot_start.py --profile cpu
+python3 motherlode.py
 
 # 🖥️ Для мощных серверов с GPU Nvidia
-python aibot_start.py --profile gpu-nvidia
+python3 motherlode.py
 
 # 🌐 Публичное развертывание с доменами
-python aibot_start.py --environment public
+python3 motherlode.py
 
 # 📊 Проверить статус всех сервисов
 docker compose -p localai ps
@@ -111,7 +103,7 @@ docker compose -p localai ps
 docker compose -p localai down
 
 # ❓ Справка по командам
-python aibot_start.py --help
+python3 motherlode.py --help
 ```
 
 ### 🎤 Голосовые команды для Alenushka
@@ -204,7 +196,7 @@ python aibot_start.py --help
 # 1. Клонировать и запустить
 git clone -b stable https://github.com/shorin-nikita/aibot-direct.git
 cd aibot-direct
-python aibot_start.py --profile cpu
+python3 motherlode.py
 
 # 2. Импортировать готовые workflow'ы в n8n
 # Перейти в http://localhost:5678
