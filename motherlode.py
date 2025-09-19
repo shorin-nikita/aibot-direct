@@ -812,7 +812,7 @@ class MotherlodeAI:
             
         return jwt_secret, anon_key, service_role
 
-    def choose_deployment_mode(self) -> bool:
+    def choose_deployment_mode(self) -> str:
         """🎯 Выбор режима развертывания с дополнительными опциями."""
         if HAS_RICH:
             mode_panel = Panel(
