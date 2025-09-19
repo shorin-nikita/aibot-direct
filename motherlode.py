@@ -993,6 +993,35 @@ JWT_SECRET={jwt_secret}
 ANON_KEY={anon_key}
 SERVICE_ROLE_KEY={service_role}
 
+# 🔧 Additional service secrets (required for full compatibility)
+MINIO_ROOT_PASSWORD={generate_secret(32)}
+CLICKHOUSE_PASSWORD={generate_secret(32)}
+LANGFUSE_SALT={generate_secret(32)}
+NEXTAUTH_SECRET={generate_secret(64)}
+ENCRYPTION_KEY={generate_secret(32)}
+FLOWISE_USERNAME=admin
+FLOWISE_PASSWORD={generate_secret(16)}
+SECRET_KEY_BASE={generate_secret(64)}
+
+# 📊 Database configuration
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+POSTGRES_DB=postgres
+SUPABASE_PUBLIC_URL=http://localhost:8005
+PGRST_DB_SCHEMAS=public
+
+# 🎯 Neo4j configuration
+NEO4J_AUTH=neo4j/{generate_secret(16)}
+
+# 🔧 Qdrant configuration  
+QDRANT_URL=http://qdrant:6333
+
+# 📡 Docker and system configs
+DOCKER_SOCKET_LOCATION=/var/run/docker.sock
+POOLER_DEFAULT_POOL_SIZE=20
+POOLER_MAX_CLIENT_CONN=100
+POOLER_PROXY_PORT_TRANSACTION=5432
+
 # 🌐 Domain Configuration ({mode} mode)
 """
         
@@ -1025,6 +1054,36 @@ RATE_LIMIT_ENABLED=true
 MONITORING_ENABLED=true
 BACKUP_ENABLED=true
 SSL_ONLY=true
+"""
+        
+        # 🔧 Дополнительные секреты для всех сервисов (исправляет deployment ошибки)
+        env_content += f"""
+# 🔧 Additional service secrets (required for full compatibility)
+MINIO_ROOT_PASSWORD={generate_secret(32)}
+CLICKHOUSE_PASSWORD={generate_secret(32)}
+LANGFUSE_SALT={generate_secret(32)}
+NEXTAUTH_SECRET={generate_secret(64)}
+ENCRYPTION_KEY={generate_secret(32)}
+FLOWISE_USERNAME=admin
+FLOWISE_PASSWORD={generate_secret(16)}
+SECRET_KEY_BASE={generate_secret(64)}
+
+# 📊 Database configuration
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+POSTGRES_DB=postgres
+SUPABASE_PUBLIC_URL=http://localhost:8005
+
+# 🔧 Qdrant configuration  
+QDRANT_URL=http://qdrant:6333
+
+# 🎯 Neo4j configuration
+NEO4J_AUTH=neo4j/{generate_secret(16)}
+
+# 📡 Additional configs
+DOCKER_SOCKET_LOCATION=/var/run/docker.sock
+POOLER_DEFAULT_POOL_SIZE=20
+POOLER_MAX_CLIENT_CONN=100
 """
         
         # Записываем файл с правильными правами доступа
