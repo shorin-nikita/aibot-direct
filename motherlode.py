@@ -101,7 +101,14 @@ def update_env_file(user_config, generated_config):
         'POOLER_TENANT_ID=your-tenant-id': f'POOLER_TENANT_ID={generated_config["pooler_tenant_id"]}',
         '# N8N_HOSTNAME=n8n.yourdomain.com': f'N8N_HOSTNAME={user_config["n8n_hostname"]}',
         '# SUPABASE_HOSTNAME=supabase.yourdomain.com': f'SUPABASE_HOSTNAME={user_config["supabase_hostname"]}',
-        '# LETSENCRYPT_EMAIL=internal': f'LETSENCRYPT_EMAIL={user_config["letsencrypt_email"]}'
+        '# LETSENCRYPT_EMAIL=internal': f'LETSENCRYPT_EMAIL={user_config["letsencrypt_email"]}',
+        'CLICKHOUSE_PASSWORD=super-secret-key-1': f'CLICKHOUSE_PASSWORD={generate_random_key(16)}',
+        'MINIO_ROOT_PASSWORD=super-secret-key-2': f'MINIO_ROOT_PASSWORD={generate_random_key(16)}',
+        'LANGFUSE_SALT=super-secret-key-3': f'LANGFUSE_SALT={generate_random_key(16)}',
+        'NEXTAUTH_SECRET=super-secret-key-4': f'NEXTAUTH_SECRET={generate_random_key(32)}',
+        'ENCRYPTION_KEY=generate-with-openssl # generate via `openssl rand -hex 32`': f'ENCRYPTION_KEY={generate_random_key(32)}',
+        'FLOWISE_USERNAME=': f'FLOWISE_USERNAME=admin',
+        'FLOWISE_PASSWORD=': f'FLOWISE_PASSWORD={generate_random_key(12)}'
     }
 
     for old, new in replacements.items():
