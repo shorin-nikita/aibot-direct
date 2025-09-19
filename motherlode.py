@@ -60,9 +60,9 @@ class MotherlodeAI:
         self.website = "https://AIBot.Direct"
         self.cheat_code = "MOTHERLODE"
         self.backup_dir = Path("motherlode_backups")
-        self.min_ram_gb = 8
-        self.min_disk_gb = 15
-        self.min_cpu_cores = 2
+        self.min_ram_gb = 4
+        self.min_disk_gb = 10
+        self.min_cpu_cores = 1
         
         # Создаем директорию для бэкапов
         self.backup_dir.mkdir(exist_ok=True)
@@ -310,11 +310,11 @@ class MotherlodeAI:
             if HAS_RICH:
                 warning_panel = Panel(
                     "[bold red]⚠️ НЕДОСТАТОЧНО РЕСУРСОВ![/bold red]\n\n"
-                    "[yellow]AI инфраструктура требует значительных ресурсов:[/yellow]\n"
-                    f"• [red]RAM:[/red] минимум {self.min_ram_gb}GB для стабильной работы\n"
-                    f"• [red]Disk:[/red] минимум {self.min_disk_gb}GB для Docker образов\n"
-                    f"• [red]CPU:[/red] минимум {self.min_cpu_cores} ядра для производительности\n\n"
-                    "[cyan]Рекомендация: обновить систему или использовать более мощный сервер[/cyan]",
+                    "[yellow]AI инфраструктура требует минимальных ресурсов:[/yellow]\n"
+                    f"• [red]RAM:[/red] минимум {self.min_ram_gb}GB для стабильной работы контейнеров\n"
+                    f"• [red]Disk:[/red] минимум {self.min_disk_gb}GB для Docker образов и данных\n"
+                    f"• [red]CPU:[/red] минимум {self.min_cpu_cores} ядро для базовой производительности\n\n"
+                    "[cyan]Рекомендация: закройте ненужные приложения или используйте более мощную систему[/cyan]",
                     title="❌ Resource Warning",
                     border_style="red"
                 )
@@ -325,7 +325,7 @@ class MotherlodeAI:
                     raise SystemResourceException("Insufficient system resources")
             else:
                 print("❌ НЕДОСТАТОЧНО РЕСУРСОВ!")
-                print(f"Нужно: RAM {self.min_ram_gb}GB, Disk {self.min_disk_gb}GB, CPU {self.min_cpu_cores} cores")
+                print(f"Минимум: RAM {self.min_ram_gb}GB, Disk {self.min_disk_gb}GB, CPU {self.min_cpu_cores} core")
                 continue_anyway = input("Продолжить? (y/N): ").lower()
                 if continue_anyway != 'y':
                     raise SystemResourceException("Insufficient system resources")
@@ -1653,4 +1653,3 @@ if __name__ == "__main__":
     
     # 🎯 Запуск enhanced CLI
     cli_commands()
-    
