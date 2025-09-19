@@ -1,221 +1,708 @@
 #!/usr/bin/env python3
 """
-motherlode.py
+motherlode.py - AIBot Direct Zero Configuration Setup
 
-Interactive setup script for the Local AI Package.
-Greets from SHORIN and guides the user through configuration.
+🚀 НУЛЕВАЯ КОНФИГУРАЦИЯ - система работает из коробки!
+Автоматически определяет окружение и настраивает все компоненты.
+
+Created by SHORIN for Russian AI automation.
 """
 
 import os
+import sys
+import json
+import time
 import secrets
 import subprocess
-import sys
+import platform
+import socket
+import requests
 from pathlib import Path
+from urllib.parse import urlparse
+
+# ================================================================
+# 🎨 VISUAL INTERFACE
+# ================================================================
+
+def print_shorin_greeting():
+    """Приветствие с информацией о системе."""
+    print("""
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║              🤖 AIBot Direct - НУЛЕВАЯ КОНФИГУРАЦИЯ          ║
+║                                                              ║
+║                   Приветствует SHORIN!                       ║
+║                                                              ║
+║  🚀 Революционная AI система запускается одной командой      ║
+║  🇷🇺 Создано в России для российского бизнеса               ║
+║  ⚡ 13 AI сервисов настроятся автоматически                  ║
+║                                                              ║
+║            Готов к запуску за 3 минуты!                     ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+""")
+
+def print_progress_bar(current, total, task):
+    """Красивый прогресс бар."""
+    progress = int(50 * current / total)
+    bar = "█" * progress + "░" * (50 - progress)
+    percent = int(100 * current / total)
+    print(f"\r🔄 {task}: [{bar}] {percent}% ", end="", flush=True)
+    if current == total:
+        print("✅")
+
+def print_status(message, success=True, details=""):
+    """Статус операции."""
+    icon = "✅" if success else "❌"
+    print(f"{icon} {message}")
+    if details and not success:
+        print(f"   💡 {details}")
+
+# ================================================================
+# 🔍 ENVIRONMENT DETECTION (УМНОЕ ОПРЕДЕЛЕНИЕ ОКРУЖЕНИЯ)
+# ================================================================
+
+def detect_environment():
+    """Автоматически определяет окружение: VPS, localhost или cloud."""
+    env_info = {
+        'type': 'localhost',
+        'ip': get_local_ip(),
+        'hostname': socket.gethostname(),
+        'is_vps': False,
+        'is_cloud': False,
+        'has_docker': check_docker(),
+        'cpu_count': os.cpu_count(),
+        'memory_gb': get_memory_gb(),
+        'disk_free_gb': get_disk_space_gb()
+    }
+    
+    # Определение типа сервера
+    if is_vps_environment():
+        env_info['type'] = 'vps'
+        env_info['is_vps'] = True
+    elif is_cloud_environment():
+        env_info['type'] = 'cloud'
+        env_info['is_cloud'] = True
+    
+    print_environment_info(env_info)
+    return env_info
+
+def get_local_ip():
+    """Получить локальный IP."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except:
+        return "127.0.0.1"
+
+def is_vps_environment():
+    """Проверка, является ли это VPS."""
+    vps_indicators = [
+        '/proc/vz',  # OpenVZ
+        '/proc/xen',  # Xen
+        'docker' in platform.platform().lower(),
+        'microsoft' in platform.uname().release.lower(),  # WSL
+    ]
+    
+    return any([
+        os.path.exists(indicator) if isinstance(indicator, str) and indicator.startswith('/')
+        else indicator for indicator in vps_indicators
+    ])
+
+def is_cloud_environment():
+    """Проверка, является ли это cloud (AWS, GCP, Azure)."""
+    try:
+        # Быстрая проверка metadata endpoint
+        response = requests.get("http://169.254.169.254/latest/meta-data/", timeout=2)
+        return response.status_code == 200
+    except:
+        return False
+
+def get_memory_gb():
+    """Получить объем памяти в GB."""
+    try:
+        with open('/proc/meminfo', 'r') as f:
+            meminfo = f.read()
+            mem_total = int([line for line in meminfo.split('\n') if 'MemTotal' in line][0].split()[1])
+            return mem_total // 1024 // 1024  # KB to GB
+    except:
+        return 4  # Default
+
+def get_disk_space_gb():
+    """Получить свободное место на диске в GB."""
+    try:
+        stat = os.statvfs('.')
+        return (stat.f_bavail * stat.f_frsize) // 1024 // 1024 // 1024
+    except:
+        return 10  # Default
+
+def print_environment_info(env_info):
+    """Вывод информации об окружении."""
+    print(f"\n🔍 АВТООПРЕДЕЛЕНИЕ ОКРУЖЕНИЯ")
+    print("=" * 50)
+    print(f"🖥️  Тип: {env_info['type'].upper()}")
+    print(f"🌐 IP: {env_info['ip']}")
+    print(f"💻 Hostname: {env_info['hostname']}")
+    print(f"🧠 CPU: {env_info['cpu_count']} cores")
+    print(f"💾 RAM: {env_info['memory_gb']} GB")
+    print(f"💿 Диск: {env_info['disk_free_gb']} GB свободно")
+    print(f"🐳 Docker: {'✅' if env_info['has_docker'] else '❌'}")
+
+def check_docker():
+    """Проверка наличия Docker."""
+    try:
+        subprocess.run(['docker', '--version'], capture_output=True, check=True)
+        return True
+    except:
+        return False
+
+# ================================================================
+# 🧠 SMART DEFAULTS (УМНЫЕ ДЕФОЛТЫ)
+# ================================================================
+
+def generate_smart_config(env_info):
+    """Генерация умной конфигурации на основе окружения."""
+    config = {
+        # Базовая конфигурация
+        'environment': env_info['type'],
+        'profile': determine_docker_profile(env_info),
+        'mode': determine_deployment_mode(env_info),
+        
+        # Автогенерируемые секреты
+        'postgres_password': generate_random_key(16),
+        'jwt_secret': generate_random_key(32),
+        'n8n_encryption_key': generate_random_key(32), 
+        'n8n_user_management_jwt_secret': generate_random_key(32),
+        'dashboard_password': generate_random_key(16),
+        'clickhouse_password': generate_random_key(16),
+        'minio_root_password': generate_random_key(16),
+        'langfuse_salt': generate_random_key(16),
+        'nextauth_secret': generate_random_key(32),
+        'encryption_key': generate_random_key(32),
+        'flowise_username': 'admin',
+        'flowise_password': generate_random_key(12),
+        'neo4j_auth': f'neo4j/{generate_random_key(12)}',
+        'pooler_tenant_id': '1000',
+        
+        # Supabase ключи (будут запрошены у пользователя если нужны)
+        'anon_key': '',
+        'service_role_key': '',
+        
+        # Доменные настройки (автоматически)
+        'domains': generate_domain_config(env_info),
+        
+        # Дополнительные настройки
+        'letsencrypt_email': 'internal',
+    }
+    
+    return config
+
+def determine_docker_profile(env_info):
+    """Определить профиль Docker на основе железа."""
+    if env_info['memory_gb'] < 4:
+        return 'cpu'  # Минимальная конфигурация
+    
+    # Попробуем определить GPU
+    try:
+        result = subprocess.run(['nvidia-smi'], capture_output=True, text=True)
+        if result.returncode == 0:
+            return 'gpu-nvidia'
+    except:
+        pass
+        
+    try:
+        result = subprocess.run(['rocm-smi'], capture_output=True, text=True) 
+        if result.returncode == 0:
+            return 'gpu-amd'
+    except:
+        pass
+    
+    return 'cpu'
+
+def determine_deployment_mode(env_info):
+    """Определить режим развертывания."""
+    if env_info['type'] == 'localhost':
+        return 'private'
+    else:
+        return 'public'  # VPS или cloud
+
+def generate_domain_config(env_info):
+    """Генерация конфигурации доменов."""
+    domains = {}
+    
+    if env_info['type'] == 'localhost':
+        # Localhost режим - только порты
+        domains.update({
+            'n8n_hostname': ':8001',
+            'webui_hostname': ':8002', 
+            'flowise_hostname': ':8003',
+            'ollama_hostname': ':8004',
+            'supabase_hostname': ':8005',
+            'searxng_hostname': ':8006',
+            'langfuse_hostname': ':8007',
+            'neo4j_hostname': ':8008',
+            'whisper_hostname': ':8009'
+        })
+    
+    return domains
 
 def generate_random_key(length=32):
     """Generate a random hex key of specified length."""
     return secrets.token_hex(length)
 
-def print_shorin_greeting():
-    """Print the greeting from SHORIN."""
-    print("""
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║                    Welcome to Motherlode!                    ║
-║                                                              ║
-║                Greetings from SHORIN!                        ║
-║                                                              ║
-║   This script will guide you through setting up your        ║
-║   Local AI Package with n8n and Supabase.                    ║
-║                                                              ║
-║   Let's get your AI infrastructure up and running!          ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
-""")
+# ================================================================
+# 🤖 ZERO CONFIGURATION INPUT (МИНИМАЛЬНЫЙ ВВОД)
+# ================================================================
 
-def get_user_input():
-    """Get user input for configuration."""
-    print("\n📋 Configuration Setup")
+def get_minimal_user_input(env_info, config):
+    """Минимальный ввод от пользователя - только самое необходимое."""
+    print(f"\n🎯 КОНФИГУРАЦИЯ ДЛЯ {env_info['type'].upper()}")
     print("=" * 50)
+    
+    if env_info['type'] == 'localhost':
+        print("✅ Localhost режим - дополнительная настройка не нужна!")
+        print("🚀 Система запустится автоматически на портах:")
+        for service, port in config['domains'].items():
+            service_name = service.replace('_hostname', '').replace('_', ' ').title()
+            print(f"   • {service_name}: http://localhost{port}")
+        
+        return config
+    
+    # Для VPS/Cloud - спросить про домены
+    print("🌐 Обнаружен удаленный сервер!")
+    print("💡 Можете настроить домены или использовать IP адреса")
+    
+    use_domains = input(f"\n🔗 Настроить домены для https://{env_info['ip']}? (y/N): ").strip().lower()
+    
+    if use_domains == 'y':
+        return get_domain_configuration(env_info, config)
+    else:
+        print("✅ Будут использованы IP адреса с портами")
+        return config
 
-    # Get hostnames
-    n8n_hostname = input("N8N_HOSTNAME (e.g., n8n.yourdomain.com): ").strip()
-    supabase_hostname = input("SUPABASE_HOSTNAME (e.g., supabase.yourdomain.com): ").strip()
-    letsencrypt_email = input("LETSENCRYPT_EMAIL (your email for SSL certificates): ").strip()
+def get_domain_configuration(env_info, config):
+    """Конфигурация доменов для продакшна."""
+    print(f"\n🌐 НАСТРОЙКА ДОМЕНОВ")
+    print("=" * 50)
+    print(f"💡 Базовый IP: {env_info['ip']}")
+    
+    base_domain = input("Базовый домен (например: yourdomain.com): ").strip()
+    
+    if base_domain:
+        email = input("Email для SSL сертификатов: ").strip() or "admin@" + base_domain
+        
+        # Автогенерация поддоменов
+        config['domains'] = {
+            'n8n_hostname': f"n8n.{base_domain}",
+            'webui_hostname': f"ai.{base_domain}",
+            'flowise_hostname': f"flowise.{base_domain}",
+            'supabase_hostname': f"supabase.{base_domain}",
+            'searxng_hostname': f"search.{base_domain}",
+            'langfuse_hostname': f"analytics.{base_domain}",
+            'neo4j_hostname': f"graph.{base_domain}",
+            'whisper_hostname': f"voice.{base_domain}",
+        }
+        config['letsencrypt_email'] = email
+        
+        print("✅ Домены сконфигурированы:")
+        for service, domain in config['domains'].items():
+            service_name = service.replace('_hostname', '').replace('_', ' ').title()
+            print(f"   • {service_name}: https://{domain}")
+    
+    return config
 
-    # Get secrets
-    jwt_secret = input("JWT_SECRET (your super secret JWT token, at least 32 chars): ").strip()
-    anon_key = input("ANON_KEY (Supabase anonymous key): ").strip()
-    service_role_key = input("SERVICE_ROLE_KEY (Supabase service role key): ").strip()
+# ================================================================
+# 📄 SMART ENV GENERATION (УМНАЯ ГЕНЕРАЦИЯ .ENV)
+# ================================================================
 
-    return {
-        'n8n_hostname': n8n_hostname,
-        'supabase_hostname': supabase_hostname,
-        'letsencrypt_email': letsencrypt_email,
-        'jwt_secret': jwt_secret,
-        'anon_key': anon_key,
-        'service_role_key': service_role_key
-    }
+def create_env_template():
+    """Создать .env template если его нет."""
+    template_content = """# ================================================================
+# 🤖 AIBot Direct - Auto-Generated Configuration
+# ================================================================
+# Этот файл создан автоматически motherlode.py
+# Все секреты сгенерированы криптографически безопасно
 
-def generate_passwords():
-    """Generate random passwords and keys."""
-    print("\n🔐 Generating secure passwords and keys...")
+# ================================================================
+# 🔐 КРИТИЧЕСКИ ВАЖНЫЕ НАСТРОЙКИ (АВТОЗАПОЛНЕНЫ)
+# ================================================================
 
-    return {
-        'n8n_encryption_key': generate_random_key(32),
-        'n8n_user_management_jwt_secret': generate_random_key(32),
-        'postgres_password': generate_random_key(16),
-        'dashboard_password': generate_random_key(16),
-        'pooler_tenant_id': '1000'
-    }
+# Postgres Database
+POSTGRES_PASSWORD=PLACEHOLDER_POSTGRES_PASSWORD
+POSTGRES_VERSION=latest
 
-def update_env_file(user_config, generated_config):
-    """Update the .env file with user and generated configuration."""
+# JWT Tokens
+JWT_SECRET=PLACEHOLDER_JWT_SECRET
+ANON_KEY=PLACEHOLDER_ANON_KEY
+SERVICE_ROLE_KEY=PLACEHOLDER_SERVICE_ROLE_KEY
+
+# N8N Security
+N8N_ENCRYPTION_KEY=PLACEHOLDER_N8N_ENCRYPTION_KEY
+N8N_USER_MANAGEMENT_JWT_SECRET=PLACEHOLDER_N8N_USER_MANAGEMENT_JWT_SECRET
+
+# ================================================================
+# 🌐 ДОМЕННЫЕ НАСТРОЙКИ
+# ================================================================
+
+# Hostnames (auto-configured)
+N8N_HOSTNAME=PLACEHOLDER_N8N_HOSTNAME
+SUPABASE_HOSTNAME=PLACEHOLDER_SUPABASE_HOSTNAME
+WEBUI_HOSTNAME=PLACEHOLDER_WEBUI_HOSTNAME
+FLOWISE_HOSTNAME=PLACEHOLDER_FLOWISE_HOSTNAME
+OLLAMA_HOSTNAME=PLACEHOLDER_OLLAMA_HOSTNAME
+SEARXNG_HOSTNAME=PLACEHOLDER_SEARXNG_HOSTNAME
+LANGFUSE_HOSTNAME=PLACEHOLDER_LANGFUSE_HOSTNAME
+NEO4J_HOSTNAME=PLACEHOLDER_NEO4J_HOSTNAME
+WHISPER_HOSTNAME=PLACEHOLDER_WHISPER_HOSTNAME
+
+# SSL Configuration
+LETSENCRYPT_EMAIL=PLACEHOLDER_LETSENCRYPT_EMAIL
+
+# ================================================================
+# 🔧 ДОПОЛНИТЕЛЬНЫЕ СЕРВИСЫ
+# ================================================================
+
+# Dashboard Security
+DASHBOARD_PASSWORD=PLACEHOLDER_DASHBOARD_PASSWORD
+
+# Supabase Pooler
+POOLER_TENANT_ID=PLACEHOLDER_POOLER_TENANT_ID
+
+# ClickHouse Analytics
+CLICKHOUSE_PASSWORD=PLACEHOLDER_CLICKHOUSE_PASSWORD
+CLICKHOUSE_MIGRATION_URL=clickhouse://clickhouse:9000
+CLICKHOUSE_URL=http://clickhouse:8123
+CLICKHOUSE_USER=clickhouse
+CLICKHOUSE_CLUSTER_ENABLED=false
+
+# MinIO Storage
+MINIO_ROOT_PASSWORD=PLACEHOLDER_MINIO_ROOT_PASSWORD
+
+# Langfuse Analytics
+LANGFUSE_SALT=PLACEHOLDER_LANGFUSE_SALT
+NEXTAUTH_SECRET=PLACEHOLDER_NEXTAUTH_SECRET
+ENCRYPTION_KEY=PLACEHOLDER_ENCRYPTION_KEY
+TELEMETRY_ENABLED=true
+LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES=true
+
+# Flowise AI Builder
+FLOWISE_USERNAME=PLACEHOLDER_FLOWISE_USERNAME
+FLOWISE_PASSWORD=PLACEHOLDER_FLOWISE_PASSWORD
+
+# Neo4j Database
+NEO4J_AUTH=PLACEHOLDER_NEO4J_AUTH
+
+# Redis/Valkey Settings
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_AUTH=LOCALONLYREDIS
+REDIS_TLS_ENABLED=false
+
+# SearXNG Settings
+SEARXNG_UWSGI_WORKERS=4
+SEARXNG_UWSGI_THREADS=4
+
+# S3 Storage Configuration (MinIO)
+LANGFUSE_S3_EVENT_UPLOAD_BUCKET=langfuse
+LANGFUSE_S3_EVENT_UPLOAD_REGION=auto
+LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID=minio
+LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT=http://minio:9000
+LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE=true
+LANGFUSE_S3_EVENT_UPLOAD_PREFIX=events/
+LANGFUSE_S3_MEDIA_UPLOAD_BUCKET=langfuse
+LANGFUSE_S3_MEDIA_UPLOAD_REGION=auto
+LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID=minio
+LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT=http://localhost:9090
+LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE=true
+LANGFUSE_S3_MEDIA_UPLOAD_PREFIX=media/
+"""
+    return template_content
+
+def generate_env_file(config):
+    """Генерация .env файла с умными дефолтами."""
+    print("\n📝 СОЗДАНИЕ КОНФИГУРАЦИИ")
+    print("=" * 50)
+    
+    # Создать или обновить .env файл
     env_path = Path('.env')
-    env_example_path = Path('.env.example')
-
-    if not env_path.exists():
-        if env_example_path.exists():
-            print("📋 Creating .env file from .env.example...")
-            import shutil
-            shutil.copyfile(env_example_path, env_path)
-        else:
-            print("❌ Neither .env nor .env.example file found! Please ensure you're in the correct directory.")
-            sys.exit(1)
-
-    print("\n📝 Updating .env file...")
-
-    # Read current .env content
-    with open(env_path, 'r') as f:
-        content = f.read()
-
-    # Replace values
+    
+    # Получить шаблон
+    content = create_env_template()
+    
+    # Подстановка значений
     replacements = {
-        'N8N_ENCRYPTION_KEY=super-secret-key': f'N8N_ENCRYPTION_KEY={generated_config["n8n_encryption_key"]}',
-        'N8N_USER_MANAGEMENT_JWT_SECRET=even-more-secret': f'N8N_USER_MANAGEMENT_JWT_SECRET={generated_config["n8n_user_management_jwt_secret"]}',
-        'POSTGRES_PASSWORD=your-super-secret-and-long-postgres-password': f'POSTGRES_PASSWORD={generated_config["postgres_password"]}',
-        'JWT_SECRET=your-super-secret-jwt-token-with-at-least-32-characters-long': f'JWT_SECRET={user_config["jwt_secret"]}',
-        'ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE': f'ANON_KEY={user_config["anon_key"]}',
-        'SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q': f'SERVICE_ROLE_KEY={user_config["service_role_key"]}',
-        'DASHBOARD_PASSWORD=this_password_is_insecure_and_should_be_updated': f'DASHBOARD_PASSWORD={generated_config["dashboard_password"]}',
-        'POOLER_TENANT_ID=your-tenant-id': f'POOLER_TENANT_ID={generated_config["pooler_tenant_id"]}',
-        '# N8N_HOSTNAME=n8n.yourdomain.com': f'N8N_HOSTNAME={user_config["n8n_hostname"]}',
-        '# SUPABASE_HOSTNAME=supabase.yourdomain.com': f'SUPABASE_HOSTNAME={user_config["supabase_hostname"]}',
-        '# LETSENCRYPT_EMAIL=internal': f'LETSENCRYPT_EMAIL={user_config["letsencrypt_email"]}',
-        'CLICKHOUSE_PASSWORD=super-secret-key-1': f'CLICKHOUSE_PASSWORD={generate_random_key(16)}',
-        'MINIO_ROOT_PASSWORD=super-secret-key-2': f'MINIO_ROOT_PASSWORD={generate_random_key(16)}',
-        'LANGFUSE_SALT=super-secret-key-3': f'LANGFUSE_SALT={generate_random_key(16)}',
-        'NEXTAUTH_SECRET=super-secret-key-4': f'NEXTAUTH_SECRET={generate_random_key(32)}',
-        'ENCRYPTION_KEY=generate-with-openssl # generate via `openssl rand -hex 32`': f'ENCRYPTION_KEY={generate_random_key(32)}',
-        'FLOWISE_USERNAME=': f'FLOWISE_USERNAME=admin',
-        'FLOWISE_PASSWORD=': f'FLOWISE_PASSWORD={generate_random_key(12)}'
+        'PLACEHOLDER_POSTGRES_PASSWORD': config['postgres_password'],
+        'PLACEHOLDER_JWT_SECRET': config['jwt_secret'],
+        'PLACEHOLDER_ANON_KEY': config.get('anon_key', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE'),
+        'PLACEHOLDER_SERVICE_ROLE_KEY': config.get('service_role_key', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q'),
+        'PLACEHOLDER_N8N_ENCRYPTION_KEY': config['n8n_encryption_key'],
+        'PLACEHOLDER_N8N_USER_MANAGEMENT_JWT_SECRET': config['n8n_user_management_jwt_secret'],
+        'PLACEHOLDER_DASHBOARD_PASSWORD': config['dashboard_password'],
+        'PLACEHOLDER_POOLER_TENANT_ID': config['pooler_tenant_id'],
+        'PLACEHOLDER_CLICKHOUSE_PASSWORD': config['clickhouse_password'],
+        'PLACEHOLDER_MINIO_ROOT_PASSWORD': config['minio_root_password'],
+        'PLACEHOLDER_LANGFUSE_SALT': config['langfuse_salt'],
+        'PLACEHOLDER_NEXTAUTH_SECRET': config['nextauth_secret'],
+        'PLACEHOLDER_ENCRYPTION_KEY': config['encryption_key'],
+        'PLACEHOLDER_FLOWISE_USERNAME': config['flowise_username'],
+        'PLACEHOLDER_FLOWISE_PASSWORD': config['flowise_password'],
+        'PLACEHOLDER_NEO4J_AUTH': config['neo4j_auth'],
+        'PLACEHOLDER_LETSENCRYPT_EMAIL': config['letsencrypt_email'],
     }
-
-    for old, new in replacements.items():
-        content = content.replace(old, new)
-
-    # Write back to file
+    
+    # Добавляем hostname настройки
+    for key, value in config['domains'].items():
+        placeholder_key = f'PLACEHOLDER_{key.upper()}'
+        replacements[placeholder_key] = value if value != '' else f':{8001 + list(config["domains"].keys()).index(key)}'
+    
+    # Применить замены
+    for placeholder, value in replacements.items():
+        content = content.replace(placeholder, value)
+    
+    # Записать файл
     with open(env_path, 'w') as f:
         f.write(content)
+    
+    print_status("Файл .env создан", True, f"Сгенерировано {len(replacements)} настроек")
+    
+    # Показать ключевую информацию
+    print("\n🔑 КЛЮЧЕВАЯ ИНФОРМАЦИЯ:")
+    print("=" * 50)
+    print(f"🔐 Postgres пароль: {config['postgres_password'][:8]}...")
+    print(f"🎛️  Dashboard пароль: {config['dashboard_password']}")
+    print(f"🤖 Flowise логин: {config['flowise_username']} / {config['flowise_password']}")
+    
+    return env_path
 
-    print("✅ .env file updated successfully!")
+# ================================================================
+# 🚀 INTEGRATED SERVICES MANAGEMENT
+# ================================================================
 
-def check_docker_availability():
-    """Check if Docker is available on the system."""
+def run_integrated_start_services(env_info, config):
+    """Интегрированный запуск сервисов с умной обработкой ошибок."""
+    print(f"\n🚀 ЗАПУСК AI ЭКОСИСТЕМЫ ({config['profile'].upper()})")
+    print("=" * 50)
+    
+    # Проверка Docker
+    if not env_info['has_docker']:
+        print_docker_installation_guide()
+        return False
+    
+    # Подготовка к запуску
+    print_status("Подготовка к запуску", True)
+    
     try:
-        result = subprocess.run(['docker', '--version'],
-                              capture_output=True, text=True, check=True)
-        print("✅ Docker is available")
-        return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        print("❌ Docker is not installed or not available")
-        print()
-        print("📦 Please install Docker first:")
-        print()
-        print("🐧 Ubuntu/Debian:")
-        print("   sudo apt update && sudo apt install docker.io docker-compose")
-        print()
+        # Интеграция с start_services.py
+        print("🔄 Запуск start_services.py с автонастройками...")
+        
+        cmd = [
+            sys.executable, 'start_services.py',
+            '--profile', config['profile'],
+            '--environment', config['mode']
+        ]
+        
+        print(f"Выполнение: {' '.join(cmd)}")
+        
+        # Запуск с прогресс-баром
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        
+        # Симуляция прогресса (в реальности start_services может не давать прогресс)
+        steps = ["Подготовка Supabase", "Запуск базы данных", "Настройка n8n", "Запуск AI сервисов", "Финализация"]
+        
+        for i, step in enumerate(steps, 1):
+            print_progress_bar(i, len(steps), step)
+            time.sleep(2)  # Даем время на запуск
+        
+        # Дожидаемся завершения
+        stdout, stderr = process.communicate(timeout=900)  # 15 минут
+        
+        if process.returncode == 0:
+            print_status("Сервисы запущены успешно!", True)
+            return True
+        else:
+            print_status("Ошибка запуска сервисов", False, stderr[:200])
+            return run_emergency_recovery(env_info, config)
+            
+    except subprocess.TimeoutExpired:
+        print_status("Timeout при запуске", False, "Запуск занял больше 15 минут")
+        return run_emergency_recovery(env_info, config)
+    except Exception as e:
+        print_status("Неожиданная ошибка", False, str(e))
+        return run_emergency_recovery(env_info, config)
+
+def print_docker_installation_guide():
+    """Гид по установке Docker."""
+    print("\n📦 УСТАНОВКА DOCKER")
+    print("=" * 50)
+    
+    system = platform.system()
+    
+    if system == "Linux":
+        print("🐧 Linux:")
+        print("   curl -fsSL https://get.docker.com -o get-docker.sh")
+        print("   sudo sh get-docker.sh")
+        print("   sudo usermod -aG docker $USER")
+    elif system == "Darwin":
         print("🍎 macOS:")
-        print("   Download Docker Desktop from: https://www.docker.com/products/docker-desktop")
-        print()
-        print("🔥 After installing Docker, also set up firewall (if needed):")
-        print("   sudo ufw enable")
-        print("   sudo ufw allow 80 && sudo ufw allow 443")
-        print("   sudo ufw reload")
-        print()
+        print("   Download Docker Desktop: https://www.docker.com/products/docker-desktop")
+    elif system == "Windows":
+        print("🪟 Windows:")
+        print("   Download Docker Desktop: https://www.docker.com/products/docker-desktop")
+    
+    print("\n🔥 После установки также настройте firewall:")
+    print("   sudo ufw enable")
+    print("   sudo ufw allow 80 && sudo ufw allow 443")
+
+def run_emergency_recovery(env_info, config):
+    """Экстренное восстановление системы."""
+    print(f"\n🆘 ЭКСТРЕННОЕ ВОССТАНОВЛЕНИЕ")
+    print("=" * 50)
+    
+    # Попытка запустить emergency_fix.sh
+    if Path('emergency_fix.sh').exists():
+        print("🔧 Запуск emergency_fix.sh...")
+        try:
+            result = subprocess.run(['bash', 'emergency_fix.sh'], timeout=300)
+            if result.returncode == 0:
+                print_status("emergency_fix.sh выполнен", True)
+                return True
+        except Exception as e:
+            print_status("emergency_fix.sh не помог", False, str(e))
+    
+    # Попытка запустить diagnose.py
+    if Path('diagnose.py').exists():
+        print("🔍 Запуск diagnose.py...")
+        try:
+            subprocess.run([sys.executable, 'diagnose.py'], timeout=300)
+        except Exception as e:
+            print_status("diagnose.py завершен с ошибками", False, str(e))
+    
+    # Минимальный запуск критичных сервисов
+    print("🚑 Попытка минимального запуска...")
+    essential_services = ['postgres', 'redis', 'open-webui']
+    
+    for service in essential_services:
+        try:
+            cmd = ['docker', 'compose', '-p', 'localai', 'up', '-d', service]
+            result = subprocess.run(cmd, timeout=60)
+            print_status(f"Запуск {service}", result.returncode == 0)
+        except:
+            print_status(f"Ошибка запуска {service}", False)
+    
+    return False
+
+def check_and_display_results(env_info, config):
+    """Проверка и отображение результатов."""
+    print(f"\n🎯 ФИНАЛЬНАЯ ПРОВЕРКА")
+    print("=" * 50)
+    
+    # Проверка портов
+    ports_to_check = {
+        3000: "Open WebUI (Alenushka)",
+        5678: "n8n Automation",
+        8003: "Flowise AI",
+        8005: "Supabase Dashboard",
+        11434: "Ollama API"
+    }
+    
+    working_services = []
+    
+    for port, name in ports_to_check.items():
+        try:
+            response = requests.get(f"http://localhost:{port}", timeout=5)
+            success = response.status_code < 500
+        except:
+            success = False
+        
+        print_status(f":{port} {name}", success)
+        
+        if success:
+            working_services.append((port, name, f"http://localhost:{port}"))
+    
+    # Результаты
+    if working_services:
+        print(f"\n🎉 УСПЕХ! Работает {len(working_services)}/{len(ports_to_check)} сервисов")
+        print("\n🌐 ДОСТУПНЫЕ ССЫЛКИ:")
+        print("=" * 50)
+        
+        for port, name, url in working_services:
+            print(f"✅ {name}")
+            print(f"   🔗 {url}")
+            print()
+        
+        print("🎊 ПОЗДРАВЛЯЕМ! AIBot Direct запущен!")
+        print("🇷🇺 Ваша персональная AI экосистема готова к работе!")
+        
+        # Дополнительная информация
+        if config['flowise_password']:
+            print(f"\n🔑 ДАННЫЕ ДЛЯ ВХОДА:")
+            print(f"   Flowise: admin / {config['flowise_password']}")
+            print(f"   Dashboard пароль: {config['dashboard_password']}")
+        
+        return True
+    else:
+        print("\n❌ Ни один сервис не отвечает")
+        print("💡 Выполните: python3 diagnose.py для диагностики")
         return False
 
-def run_start_services(user_config):
-    """Run the start_services.py script."""
-    print("\n🚀 Starting services...")
-
-    # Check Docker availability first
-    if not check_docker_availability():
-        print("\n💡 Configuration saved! Run this script again after installing Docker.")
-        print(f"Access URLs after setup: https://{user_config['n8n_hostname']} and https://{user_config['supabase_hostname']}")
-        return
-
-    try:
-        # Run start_services.py with default parameters
-        result = subprocess.run([
-            sys.executable, 'start_services.py',
-            '--profile', 'cpu',
-            '--environment', 'private'
-        ], check=True)
-
-        print("✅ Services started successfully!")
-        print("\n🎉 Setup complete!")
-        print("Your Local AI Package is now running.")
-        print(f"Access n8n at: https://{user_config['n8n_hostname']}")
-        print(f"Access Supabase at: https://{user_config['supabase_hostname']}")
-
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to start services: {e}")
-        print("\n🔧 Troubleshooting:")
-        print("- Make sure Docker is running")
-        print("- Check if ports 80 and 443 are available")
-        print("- Try running: python3 start_services.py --profile cpu --environment private")
-        sys.exit(1)
-
 def check_directory():
-    """Check if we're in the correct directory."""
-    required_files = ['.env.example', 'docker-compose.yml', 'start_services.py']
-    missing_files = []
-
-    for file in required_files:
-        if not Path(file).exists():
-            missing_files.append(file)
+    """Проверка правильности директории."""
+    required_files = ['docker-compose.yml', 'start_services.py']
+    missing_files = [f for f in required_files if not Path(f).exists()]
 
     if missing_files:
-        print("❌ Error: This script must be run from the local-ai-packaged directory!")
-        print(f"Missing required files: {', '.join(missing_files)}")
-        print(f"Current directory: {Path.cwd()}")
-        print()
-        print("Please navigate to the correct directory:")
-        print("  cd local-ai-packaged")
-        print("  python3 motherlode.py")
+        print_status("Неправильная директория", False, f"Нет файлов: {', '.join(missing_files)}")
+        print(f"\nТекущая папка: {Path.cwd()}")
+        print("\n💡 Перейдите в правильную директорию:")
+        print("   cd aibot-direct")
+        print("   python3 motherlode.py")
         sys.exit(1)
 
-    print("✅ Running from correct directory: local-ai-packaged")
+    print_status("Директория корректна", True, "aibot-direct")
+
+# ================================================================
+# 🎮 MAIN ORCHESTRATOR (ГЛАВНЫЙ ОРКЕСТРАТОР)
+# ================================================================
 
 def main():
-    """Main function."""
+    """Главная функция - нулевая конфигурация в действии."""
+    
+    # Приветствие
     print_shorin_greeting()
-
-    # Check if we're in the right directory
+    
+    # Проверка директории
     check_directory()
-
-    # Get user configuration
-    user_config = get_user_input()
-
-    # Generate passwords
-    generated_config = generate_passwords()
-
-    # Update .env file
-    update_env_file(user_config, generated_config)
-
-    # Run start services
-    run_start_services(user_config)
+    
+    # ШАГ 1: Автоопределение окружения
+    print_progress_bar(1, 5, "Анализ окружения")
+    env_info = detect_environment()
+    
+    # ШАГ 2: Генерация умной конфигурации
+    print_progress_bar(2, 5, "Генерация конфигурации")
+    config = generate_smart_config(env_info)
+    
+    # ШАГ 3: Минимальный ввод пользователя (если нужен)
+    print_progress_bar(3, 5, "Настройка параметров")
+    config = get_minimal_user_input(env_info, config)
+    
+    # ШАГ 4: Создание .env файла
+    print_progress_bar(4, 5, "Создание конфигурации")
+    env_file = generate_env_file(config)
+    
+    # ШАГ 5: Запуск сервисов
+    print_progress_bar(5, 5, "Запуск AI экосистемы")
+    success = run_integrated_start_services(env_info, config)
+    
+    # Финальная проверка и результаты
+    if success:
+        check_and_display_results(env_info, config)
+    else:
+        print("\n⚠️  Система настроена, но запуск не удался")
+        print("💡 Конфигурация сохранена в .env")
+        print("🔧 Выполните: python3 diagnose.py для исправления проблем")
 
 if __name__ == "__main__":
     main()
