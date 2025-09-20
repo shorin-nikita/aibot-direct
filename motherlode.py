@@ -396,7 +396,11 @@ def check_and_display_results(env_info, config):
 
 def auto_download_original_files():
     """АВТОСКАЧИВАНИЕ недостающих файлов из оригинального репозитория."""
-    required_files = ['docker-compose.yml', 'start_services.py']
+    required_files = [
+        'docker-compose.yml', 
+        'start_services.py',
+        'docker-compose.override.private.yml'  # ДОБАВЛЕНО для исправления ошибки
+    ]
     missing_files = [f for f in required_files if not Path(f).exists()]
     
     if not missing_files:
@@ -424,7 +428,8 @@ def auto_download_original_files():
                 'local-ai-packaged-main/start_services.py', 
                 'local-ai-packaged-main/.env.example',
                 'local-ai-packaged-main/Caddyfile',
-                'local-ai-packaged-main/n8n_pipe.py'
+                'local-ai-packaged-main/n8n_pipe.py',
+                'local-ai-packaged-main/docker-compose.override.private.yml'  # ДОБАВЛЕНО
             ]
             
             for file_path in extract_files:
