@@ -233,8 +233,6 @@ class MotherlodeAI:
                 )
                 console.print(success_panel)
                 
-        return True  # Возвращаем статус готовности
-                
         else:
             print("\n🔍 СИСТЕМНАЯ ДИАГНОСТИКА:")
             print("=" * 50)
@@ -262,6 +260,8 @@ class MotherlodeAI:
             else:
                 print("✅ READY: Интернет доступен")
             print("=" * 50)
+                
+        return True  # Возвращаем статус готовности
 
     def _check_python(self):
         return sys.version_info >= (3, 8)
