@@ -405,6 +405,16 @@ REDIS_TLS_ENABLED=false
 SEARXNG_UWSGI_WORKERS=4
 SEARXNG_UWSGI_THREADS=4
 
+# Docker Configuration
+DOCKER_SOCKET_LOCATION=/var/run/docker.sock
+
+# Supabase Configuration
+POSTGRES_HOST=db  
+POSTGRES_PORT=5432
+POSTGRES_DB=postgres
+SITE_URL=http://localhost:3000
+API_EXTERNAL_URL=http://localhost:54321
+
 # S3 Storage Configuration (MinIO)
 LANGFUSE_S3_EVENT_UPLOAD_BUCKET=langfuse
 LANGFUSE_S3_EVENT_UPLOAD_REGION=auto
