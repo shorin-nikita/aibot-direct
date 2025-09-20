@@ -177,12 +177,15 @@ class MotherlodeAI:
             ]
             
             all_good = True
+            missing_components = []
+            
             for name, status, description, level in checks:
                 if status:
                     check_table.add_row(name, "[bold green]✅ READY[/bold green]", description, level)
                 else:
                     check_table.add_row(name, "[bold red]❌ MISSING[/bold red]", description, "[red]🔧 Install[/red]")
                     all_good = False
+                    missing_components.append(name)
             
             console.print(check_table)
             
@@ -199,7 +202,23 @@ class MotherlodeAI:
                     border_style="red"
                 )
                 console.print(install_panel)
-                self._auto_install_missing()
+                
+                # Попытка автоустановки
+                if "Docker Engine" in missing_components:
+                    install_success = self._auto_install_missing()
+                    if install_success:
+                        console.print("\n[bold green]🔄 Перепроверяю Docker после установки...[/bold green]")
+                        time.sleep(2)
+                        if self._check_docker():
+                            console.print("[bold green]✅ Docker теперь работает![/bold green]")
+                        else:
+                            console.print("[bold red]❌ Docker всё ещё недоступен. Перелогиньтесь![/bold red]")
+                            console.print("[yellow]Команда: sudo su - $USER[/yellow]")
+                            return False
+                    else:
+                        console.print("[bold red]❌ Автоустановка Docker не удалась![/bold red]")
+                        return False
+                        
             else:
                 success_panel = Panel(
                     "[bold green]✅ ВСЕ КОМПОНЕНТЫ АКТИВИРОВАНЫ![/bold green]\n\n"
@@ -213,6 +232,8 @@ class MotherlodeAI:
                     border_style="green"
                 )
                 console.print(success_panel)
+                
+        return True  # Возвращаем статус готовности
                 
         else:
             print("\n🔍 СИСТЕМНАЯ ДИАГНОСТИКА:")
@@ -268,24 +289,88 @@ class MotherlodeAI:
             return False
 
     def _auto_install_missing(self):
-        """Автоустановка для Linux/Ubuntu."""
-        if platform.system() == "Linux":
+        """🔧 Полноценная автоустановка Docker для Linux/Ubuntu."""
+        if platform.system() != "Linux":
             if HAS_RICH:
-                console.print("[bold yellow]🔧 Автоматическая установка недостающих компонентов...[/bold yellow]")
-                with console.status("[bold green]Устанавливаю...") as status:
-                    commands = [
-                        "sudo apt update -y",
-                        "sudo apt install -y docker.io docker-compose git curl python3-pip",
-                        "sudo systemctl start docker",
-                        "sudo usermod -aG docker $USER"
-                    ]
-                    for cmd in commands:
-                        try:
-                            subprocess.run(cmd.split(), check=True, capture_output=True)
-                        except:
-                            pass
+                console.print("[bold red]⚠️ Автоустановка поддерживается только на Linux![/bold red]")
+                console.print("[yellow]Установите Docker вручную:[/yellow]")
+                console.print("• Ubuntu/Debian: apt install docker.io docker-compose")
+                console.print("• CentOS/RHEL: yum install docker docker-compose")
+                console.print("• macOS: brew install docker")
+            return False
+            
+        success = True
+        
+        if HAS_RICH:
+            console.print("[bold yellow]🔧 ПОЛНАЯ АВТОУСТАНОВКА DOCKER НА LINUX[/bold yellow]")
+            
+            install_commands = [
+                ("apt update -y", "Обновление package lists"),
+                ("apt install -y apt-transport-https ca-certificates curl software-properties-common", "Установка зависимостей"),
+                ("curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -", "Добавление Docker GPG key"),
+                ("add-apt-repository 'deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable'", "Добавление Docker repository"),
+                ("apt update -y", "Обновление после добавления repo"),
+                ("apt install -y docker-ce docker-compose git curl python3-pip", "Установка Docker CE + compose"),
+                ("systemctl start docker", "Запуск Docker service"),
+                ("systemctl enable docker", "Автозапуск Docker при загрузке"),
+                ("usermod -aG docker $USER", "Добавление пользователя в группу docker")
+            ]
+            
+            for cmd, desc in track(install_commands, description="[green]Installing Docker..."):
+                try:
+                    # Для команд с sudo - автоматически добавляем sudo если не root
+                    if os.getuid() != 0:  # Если не root
+                        cmd = f"sudo {cmd}"
+                    
+                    result = subprocess.run(
+                        cmd, 
+                        shell=True,
+                        check=True, 
+                        capture_output=True, 
+                        text=True,
+                        timeout=60
+                    )
+                    console.print(f"[green]✅ {desc}[/green]")
+                    
+                except subprocess.TimeoutExpired:
+                    console.print(f"[red]⏱️ {desc} (timeout)[/red]")
+                    success = False
+                except subprocess.CalledProcessError as e:
+                    console.print(f"[red]❌ {desc} (exit {e.returncode})[/red]")
+                    if "Permission denied" in str(e.stderr):
+                        console.print("[yellow]⚠️ Требуются sudo права![/yellow]")
+                    success = False
+                except Exception as e:
+                    console.print(f"[red]💥 {desc} (error: {e})[/red]")
+                    success = False
+                
+                time.sleep(0.5)
+            
+            # Проверяем результат установки
+            if success:
+                console.print("\n[bold green]✅ Docker успешно установлен![/bold green]")
+                console.print("[yellow]⚠️ ВАЖНО: Перелогиньтесь для применения прав Docker![/yellow]")
+                console.print("[dim]Команда: sudo su - $USER[/dim]")
             else:
-                print("🔧 Устанавливаю компоненты...")
+                console.print("\n[bold red]❌ Ошибки при установке Docker![/bold red]")
+                console.print("[yellow]🔧 Попробуйте установку вручную:[/yellow]")
+                console.print("• curl -fsSL https://get.docker.com -o get-docker.sh")
+                console.print("• sudo sh get-docker.sh")
+                
+        else:
+            print("🔧 Устанавливаю Docker на Linux...")
+            # Базовая установка для терминального режима
+            try:
+                subprocess.run("sudo apt update && sudo apt install -y docker.io docker-compose", 
+                             shell=True, check=True, timeout=180)
+                subprocess.run("sudo systemctl start docker && sudo systemctl enable docker", 
+                             shell=True, check=True, timeout=30)
+                print("✅ Docker установлен!")
+            except:
+                print("❌ Ошибка установки Docker")
+                success = False
+                
+        return success
 
     def setup_firewall(self):
         """🛡️ Настройка квантовой защиты (UFW firewall)."""
@@ -810,38 +895,37 @@ MINIO_ROOT_PASSWORD={generate_secret(16)}
                     
                     progress.advance(empire_task)
             
-            # Реальный запуск через start_services.py
+            # Реальный запуск через start_services.py с проверкой результата
             try:
                 console.print("\n[bold yellow]🔧 Запускаю infrastructure через start_services.py...[/bold yellow]")
                 console.print("[dim]Это может занять 5-10 минут для первого запуска...[/dim]")
                 
                 # Запуск без timeout для полной установки
-                result = subprocess.run([sys.executable, "start_services.py"], 
-                                      text=True, timeout=None)
+                result = subprocess.run(
+                    [sys.executable, "start_services.py"],
+                    text=True, 
+                    timeout=None,
+                    capture_output=True
+                )
                 
                 if result.returncode == 0:
-                    console.print("[bold green]✅ Infrastructure deployed successfully![/bold green]")
-                    deployment_success = True
+                    console.print("[bold green]✅ start_services.py завершился успешно![/bold green]")
+                    # Проверяем реальный статус контейнеров
+                    deployment_success = self._verify_deployment()
                 else:
-                    console.print(f"[red]❌ Deployment failed (exit code: {result.returncode})[/red]")
-                    console.print("[yellow]🔧 Попробуйте: docker-compose up -d[/yellow]")
-                    deployment_success = False
+                    console.print(f"[red]❌ start_services.py failed (exit code: {result.returncode})[/red]")
+                    if result.stderr:
+                        console.print(f"[red]Error: {result.stderr[:200]}...[/red]")
+                    console.print("[yellow]🔧 Попробую docker-compose напрямую...[/yellow]")
+                    deployment_success = self._fallback_deployment()
                     
             except FileNotFoundError:
                 console.print("[red]❌ start_services.py not found![/red]")
                 console.print("[yellow]🔧 Fallback: Запускаю docker-compose напрямую...[/yellow]")
-                
-                # Fallback: прямой вызов docker-compose
-                try:
-                    subprocess.run(["docker-compose", "up", "-d"], check=True, timeout=None)
-                    console.print("[bold green]✅ Docker Compose запущен![/bold green]")
-                    deployment_success = True
-                except subprocess.CalledProcessError as e:
-                    console.print(f"[red]❌ Docker Compose failed: {e}[/red]")
-                    deployment_success = False
-                except FileNotFoundError:
-                    console.print("[red]❌ Docker Compose не найден![/red]")
-                    deployment_success = False
+                deployment_success = self._fallback_deployment()
+            except Exception as e:
+                console.print(f"[red]❌ Unexpected error: {e}[/red]")
+                deployment_success = self._fallback_deployment()
                     
             # Эффект победы или поражения
             if deployment_success:
@@ -894,6 +978,104 @@ MINIO_ROOT_PASSWORD={generate_secret(16)}
                 print("🔧 Установите Docker и повторите запуск")
         
         return deployment_success
+
+    def _verify_deployment(self):
+        """🔍 Проверка реального статуса развертывания контейнеров."""
+        try:
+            # Проверяем статус Docker контейнеров
+            result = subprocess.run(
+                ["docker", "ps", "--format", "table {{.Names}}\t{{.Status}}\t{{.Ports}}"],
+                capture_output=True, text=True, timeout=10
+            )
+            
+            if result.returncode != 0:
+                if HAS_RICH:
+                    console.print("[red]❌ Docker не отвечает![/red]")
+                return False
+                
+            running_containers = result.stdout
+            
+            # Основные сервисы, которые должны быть запущены
+            critical_services = [
+                "supabase-db", "supabase-auth", "supabase-rest",
+                "n8n", "openwebui", "ollama"
+            ]
+            
+            running_services = []
+            failed_services = []
+            
+            for service in critical_services:
+                if service in running_containers and "Up" in running_containers:
+                    running_services.append(service)
+                else:
+                    failed_services.append(service)
+            
+            if HAS_RICH:
+                if running_services:
+                    console.print(f"[green]✅ Запущенные сервисы: {', '.join(running_services)}[/green]")
+                if failed_services:
+                    console.print(f"[yellow]⚠️ Проблемные сервисы: {', '.join(failed_services)}[/yellow]")
+                    
+                console.print("\n[bold white]📊 Полный статус контейнеров:[/bold white]")
+                console.print(f"[dim]{running_containers}[/dim]")
+            
+            # Считаем успешным если запущено больше половины критических сервисов
+            success_rate = len(running_services) / len(critical_services)
+            return success_rate >= 0.6
+            
+        except Exception as e:
+            if HAS_RICH:
+                console.print(f"[red]❌ Ошибка проверки контейнеров: {e}[/red]")
+            return False
+    
+    def _fallback_deployment(self):
+        """🔄 Резервный способ развертывания через docker-compose."""
+        try:
+            if HAS_RICH:
+                console.print("[yellow]🔧 Пробую docker compose up -d...[/yellow]")
+                
+            # Пробуем разные варианты docker compose
+            compose_commands = [
+                ["docker", "compose", "up", "-d"],
+                ["docker-compose", "up", "-d"]
+            ]
+            
+            for cmd in compose_commands:
+                try:
+                    result = subprocess.run(
+                        cmd, 
+                        check=True, 
+                        timeout=300,  # 5 минут на развертывание
+                        capture_output=True,
+                        text=True
+                    )
+                    
+                    if HAS_RICH:
+                        console.print(f"[green]✅ {' '.join(cmd)} успешно выполнен![/green]")
+                    
+                    # Ждем пару секунд и проверяем статус
+                    time.sleep(5)
+                    return self._verify_deployment()
+                    
+                except subprocess.CalledProcessError as e:
+                    if HAS_RICH:
+                        console.print(f"[red]❌ {' '.join(cmd)} failed: {e}[/red]")
+                        if e.stderr:
+                            console.print(f"[red]stderr: {e.stderr[:200]}...[/red]")
+                    continue
+                except FileNotFoundError:
+                    if HAS_RICH:
+                        console.print(f"[yellow]⏭️ {' '.join(cmd)} не найден, пробую другой...[/yellow]")
+                    continue
+            
+            if HAS_RICH:
+                console.print("[red]❌ Все варианты docker-compose не работают![/red]")
+            return False
+            
+        except Exception as e:
+            if HAS_RICH:
+                console.print(f"[red]❌ Fallback deployment error: {e}[/red]")
+            return False
 
     def read_env_domains(self):
         """📖 Читает домены из .env файла."""
@@ -1055,8 +1237,17 @@ def main():
         # 1. 🎮 Активация чит-кода + показ полного стека
         motherlode.show_cheat_activation()
         
-        # 2. 🔍 Системная диагностика
-        motherlode.check_prerequisites()
+        # 2. 🔍 КРИТИЧНО: Системная диагностика с автоустановкой
+        system_ready = motherlode.check_prerequisites()
+        if not system_ready:
+            if HAS_RICH:
+                console.print("\n[bold red]❌ Система не готова к развертыванию![/bold red]")
+                console.print("[yellow]Перезапустите после устранения проблем:[/yellow]")
+                console.print("• Перелогиньтесь: sudo su - $USER")
+                console.print("• Перезапустите: python3 motherlode.py")
+            else:
+                print("❌ Система не готова! Перезапустите после установки Docker")
+            return False
         
         # 3. 🛡️ Настройка firewall (квантовая защита)
         motherlode.setup_firewall()
@@ -1073,11 +1264,13 @@ def main():
         # 7. 💎 Генерация .env файла с настройками
         motherlode.generate_env_file(jwt_secret, anon_key, service_role, domains)
         
-        # 8. 🚀 Активация AI империи (с реальным деплоем)
+        # 8. 🚀 КРИТИЧНО: Активация AI империи с проверкой результата
         deployment_success = motherlode.activate_ai_empire()
         
-        # 9. 🏆 Показ статуса production-ready environment
+        # 9. 🏆 Показ реального статуса production-ready environment
         motherlode.show_empire_status(deployment_success)
+        
+        return deployment_success
         
     except KeyboardInterrupt:
         if HAS_RICH:
@@ -1085,6 +1278,7 @@ def main():
             console.print("[dim]Используй Ctrl+C для выхода из любой фазы активации[/dim]")
         else:
             print("\n❌ Активация MOTHERLODE прервана!")
+        return False
     except Exception as e:
         if HAS_RICH:
             console.print(f"\n[bold red]💥 Критическая ошибка активации:[/bold red]")
@@ -1097,6 +1291,7 @@ def main():
         else:
             print(f"\n💥 Ошибка активации: {e}")
             print("🔧 Попробуй перезапустить скрипт")
+        return False
 
 def cli_commands():
     """🎮 CLI команды для управления AI империей."""
