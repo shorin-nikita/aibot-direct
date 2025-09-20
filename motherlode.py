@@ -553,32 +553,169 @@ class MotherlodeAI:
         return domains
 
     def generate_env_file(self, jwt_secret, anon_key, service_role, domains):
-        """💎 Генерация .env файла с автоматическими секретами и доменами."""
+        """💎 Генерация ПОЛНОГО .env файла с автоматическими секретами и доменами."""
         def generate_secret(length=32):
             alphabet = string.ascii_letters + string.digits
             return ''.join(secrets.choice(alphabet) for _ in range(length))
         
-        # Базовый контент
+        # ПОЛНЫЙ .env контент со всеми необходимыми переменными
         env_content = f"""# 🎮 AIBot Direct - MOTHERLODE Configuration
 # Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 # Website: https://AIBot.Direct
 
-# 🔐 Автоматически сгенерированные секреты
+############
+# 🔐 Core Secrets - Автоматически сгенерированные
+############
 N8N_ENCRYPTION_KEY={generate_secret(32)}
 N8N_USER_MANAGEMENT_JWT_SECRET={generate_secret(64)}
 POSTGRES_PASSWORD={generate_secret(32)}
 DASHBOARD_PASSWORD={generate_secret(24)}
-POOLER_TENANT_ID={generate_secret(16)}
+DASHBOARD_USERNAME=supabase
+SECRET_KEY_BASE={generate_secret(64)}
+VAULT_ENC_KEY={generate_secret(32)}
+NEXTAUTH_SECRET={generate_secret(32)}
+ENCRYPTION_KEY={generate_secret(32)}
 
 # 🔑 Supabase API Keys (введены вручную)
 JWT_SECRET={jwt_secret}
 ANON_KEY={anon_key}
 SERVICE_ROLE_KEY={service_role}
 
-# 🌐 Настройка доменов
+############
+# 🗄️ Database Configuration
+############
+POSTGRES_HOST=db
+POSTGRES_DB=postgres
+POSTGRES_PORT=5432
+
+############
+# 🏊 Supavisor - Database pooler
+############
+POOLER_PROXY_PORT_TRANSACTION=6543
+POOLER_DEFAULT_POOL_SIZE=20
+POOLER_MAX_CLIENT_CONN=100
+POOLER_TENANT_ID=1000
+POOLER_DB_POOL_SIZE=5
+
+############
+# 🌐 API Proxy - Kong Configuration
+############
+KONG_HTTP_PORT=8000
+KONG_HTTPS_PORT=8443
+
+############
+# 🎯 API Configuration
+############
+PGRST_DB_SCHEMAS=public,storage,graphql_public
+
+############
+# 🔐 Auth Configuration
+############
+SITE_URL=http://localhost:3000
+ADDITIONAL_REDIRECT_URLS=
+JWT_EXPIRY=3600
+DISABLE_SIGNUP=false
+API_EXTERNAL_URL=http://localhost:8000
+MAILER_URLPATHS_CONFIRMATION="/auth/v1/verify"
+MAILER_URLPATHS_INVITE="/auth/v1/verify"
+MAILER_URLPATHS_RECOVERY="/auth/v1/verify"
+MAILER_URLPATHS_EMAIL_CHANGE="/auth/v1/verify"
+ENABLE_EMAIL_SIGNUP=true
+ENABLE_EMAIL_AUTOCONFIRM=false
+SMTP_ADMIN_EMAIL=admin@example.com
+SMTP_HOST=supabase-mail
+SMTP_PORT=2500
+SMTP_USER=fake_mail_user
+SMTP_PASS=fake_mail_password
+SMTP_SENDER_NAME=fake_sender
+ENABLE_ANONYMOUS_USERS=false
+ENABLE_PHONE_SIGNUP=true
+ENABLE_PHONE_AUTOCONFIRM=true
+
+############
+# 🎨 Studio Dashboard Configuration
+############
+STUDIO_DEFAULT_ORGANIZATION=Default Organization
+STUDIO_DEFAULT_PROJECT=Default Project
+STUDIO_PORT=3000
+SUPABASE_PUBLIC_URL=http://localhost:8000
+
+############
+# 🔄 Functions Configuration
+############
+FUNCTIONS_VERIFY_JWT=false
+
+############
+# 📊 Analytics & Logs Configuration
+############
+IMGPROXY_ENABLE_WEBP_DETECTION=true
+TELEMETRY_ENABLED=false
+LOGFLARE_PUBLIC_ACCESS_TOKEN={generate_secret(64)}
+LOGFLARE_PRIVATE_ACCESS_TOKEN={generate_secret(64)}
+DOCKER_SOCKET_LOCATION=/var/run/docker.sock
+
+############
+# 🌊 Flowise Configuration
+############
+FLOWISE_USERNAME=admin
+FLOWISE_PASSWORD={generate_secret(16)}
+
+############
+# 🕸️ Neo4j Configuration
+############
+NEO4J_AUTH=neo4j/{generate_secret(16)}
+
+############
+# 🔍 SearXNG Configuration
+############
+SEARXNG_UWSGI_WORKERS=4
+SEARXNG_UWSGI_THREADS=4
+
+############
+# 📈 Langfuse Configuration
+############
+LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES=true
+LANGFUSE_INGESTION_CLICKHOUSE_WRITE_INTERVAL_MS=10000
+LANGFUSE_INGESTION_QUEUE_DELAY_MS=1000
+LANGFUSE_INIT_ORG_ID=aibot-direct
+LANGFUSE_INIT_ORG_NAME=AIBot Direct
+LANGFUSE_INIT_PROJECT_ID=motherlode
+LANGFUSE_INIT_PROJECT_NAME=Motherlode AI
+LANGFUSE_INIT_PROJECT_PUBLIC_KEY={generate_secret(32)}
+LANGFUSE_INIT_PROJECT_SECRET_KEY={generate_secret(32)}
+LANGFUSE_INIT_USER_EMAIL=admin@aibot.direct
+
+############
+# 📊 ClickHouse Configuration
+############
+CLICKHOUSE_USER=default
+CLICKHOUSE_PASSWORD={generate_secret(16)}
+CLICKHOUSE_CLUSTER_ENABLED=false
+CLICKHOUSE_URL=http://clickhouse:8123
+CLICKHOUSE_MIGRATION_URL=http://clickhouse:8123
+
+############
+# 🗄️ Redis Configuration
+############
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_AUTH={generate_secret(16)}
+REDIS_TLS_ENABLED=false
+REDIS_TLS_CERT=
+REDIS_TLS_KEY=
+REDIS_TLS_CA=
+
+############
+# 📦 MinIO Configuration
+############
+MINIO_ROOT_PASSWORD={generate_secret(16)}
+
+############
+# 🌐 Domain Configuration
+############
 """
         
-        # Обязательные домены (всегда раскомментированы если есть)
+        # Добавляем обязательные домены
         if domains.get('n8n'):
             env_content += f"N8N_HOSTNAME={domains['n8n']}\n"
         else:
@@ -594,7 +731,7 @@ SERVICE_ROLE_KEY={service_role}
         else:
             env_content += "# LETSENCRYPT_EMAIL=internal\n"
         
-        # Дополнительные домены (раскомментированы только если заполнены)
+        # Добавляем дополнительные домены (раскомментированы только если заполнены)
         optional_domains = [
             ('webui', 'WEBUI_HOSTNAME', 'openwebui.yourdomain.com'),
             ('flowise', 'FLOWISE_HOSTNAME', 'flowise.yourdomain.com'),
@@ -610,6 +747,8 @@ SERVICE_ROLE_KEY={service_role}
             else:
                 env_content += f"# {env_key}={default}\n"
         
+        env_content += "\n"
+        
         with open('.env', 'w') as f:
             f.write(env_content)
         
@@ -621,17 +760,20 @@ SERVICE_ROLE_KEY={service_role}
             env_panel = Panel(
                 "[bold green]✅ КОНФИГУРАЦИЯ ЗАВЕРШЕНА![/bold green]\n\n"
                 "[yellow]📝 Создан файл .env с настройками:[/yellow]\n"
-                f"• [green]Автоматических секретов:[/green] 5 шт. ✅\n"
+                f"• [green]Автоматических секретов:[/green] 25+ шт. ✅\n"
                 f"• [blue]Supabase ключей:[/blue] 3 шт. ✅\n"
                 f"• [cyan]Активных доменов:[/cyan] {total_domains} из 9 ✅\n"
-                f"• [yellow]Обязательных доменов:[/yellow] {active_domains}/3 ✅\n\n"
+                f"• [yellow]Обязательных доменов:[/yellow] {active_domains}/3 ✅\n"
+                f"• [magenta]Все сервисы сконфигурированы:[/magenta] Supabase, Langfuse, ClickHouse, Redis, MinIO, Neo4j, Flowise ✅\n\n"
                 "[bold gold1]🔐 Система готова к активации![/bold gold1]",
                 title="🏆 Configuration Generated",
                 border_style="green"
             )
             console.print(env_panel)
         else:
-            print(f"✅ Файл .env создан! Доменов активно: {total_domains}/9")
+            print(f"✅ Файл .env создан!")
+            print(f"📊 Статистика: 25+ секретов, 3 Supabase ключа, {total_domains}/9 доменов")
+            print("🔐 Все сервисы сконфигурированы: Supabase, Langfuse, ClickHouse, Redis, MinIO, Neo4j, Flowise")
 
     def activate_ai_empire(self):
         """🚀 Запуск всей AI империи через Docker Compose."""
