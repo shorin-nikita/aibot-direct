@@ -1,6 +1,7 @@
 # 💻 ВМАПБДЯМ - Виртуальная Машина Автоматизации, Баз Данных и Языковых Моделей
 
 **🇷🇺 ОФИЦИАЛЬНЫЙ РОССИЙСКИЙ ГОСТ СТАНДАРТ AI АВТОМАТИЗАЦИИ**  
+**🔗 ИНТЕГРАЦИЯ с [local-ai-packaged](https://github.com/coleam00/local-ai-packaged)**  
 **Ваша персональная виртуальная машина Alenushka с поддержкой голоса**
 
 > 🌐 **Website**: [AIBot.Direct](https://AIBot.Direct)  
@@ -9,25 +10,34 @@
 
 ## 📦 Installation - НУЛЕВАЯ КОНФИГУРАЦИЯ!
 
-### 🚀 Способ 1: Игровой интерфейс (рекомендуется)
+### 🚀 Способ 1: ПРАВИЛЬНАЯ интеграция (рекомендуется)
+```bash
+# 1. Клонировать оригинальный local-ai-packaged:
+git clone https://github.com/coleam00/local-ai-packaged.git
+cd local-ai-packaged
+
+# 2. Скачать ВМАПБДЯМ интеграцию:
+curl -O https://raw.githubusercontent.com/shorin-nikita/aibot-direct/main/motherlode_fixed.py
+
+# 3. Запустить ZERO CONFIGURATION:
+python3 motherlode_fixed.py
+```
+**🎯 ПРАВИЛЬНАЯ интеграция** с оригинальной системой local-ai-packaged!
+
+### ⚡ Способ 2: Только для разработчиков (без гарантий)
 ```bash
 git clone https://github.com/shorin-nikita/aibot-direct.git
-cd aibot-direct
-python3 motherlode_gaming.py
+cd aibot-direct  
+python3 start_services.py --profile cpu
 ```
-**🎮 Игровой интерфейс** в стиле промышленной автоматизации с Rich UI/UX!
-
-### ⚡ Способ 2: Быстрая установка
-```bash
-python3 motherlode.py
-```
+**⚠️ Требует ручной настройки .env файла**
 Классический интерфейс с нулевой конфигурацией.
 
-### 🌐 Способ 3: Веб-интерфейс
+### 🔧 Способ 3: Диагностика и исправление
 ```bash
-python3 setup_gui.py
+python3 diagnose.py
 ```
-Откроется красивый веб-интерфейс в браузере для установки одним кликом.
+**🩺 Диагностика системы** и автоматическое исправление ошибок!
 
 ### ⚡ Что происходит автоматически:
 - ✅ **Определяется тип сервера** (localhost/VPS/cloud)
