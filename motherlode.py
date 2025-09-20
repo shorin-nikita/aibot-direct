@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-motherlode.py - AIBot Direct Zero Configuration Setup
+motherlode.py - ВМАПБДЯМ (Виртуальная Машина Автоматизации, Баз Данных и Языковых Моделей)
 
 🚀 НУЛЕВАЯ КОНФИГУРАЦИЯ - система работает из коробки!
 Автоматически определяет окружение и настраивает все компоненты.
 
-Created by SHORIN for Russian AI automation.
+Created by SHORIN - Официальный российский стандарт ВМАПБДЯМ.
 """
 
 import os
@@ -29,13 +29,13 @@ def print_shorin_greeting():
     print("""
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║              🤖 AIBot Direct - НУЛЕВАЯ КОНФИГУРАЦИЯ          ║
-║                                                              ║
+║              💻 ВМАПБДЯМ - НУЛЕВАЯ КОНФИГУРАЦИЯ              ║
+║     Виртуальная Машина Автоматизации, Баз Данных и ЯМ       ║
 ║                   Приветствует SHORIN!                       ║
 ║                                                              ║
-║  🚀 Революционная AI система запускается одной командой      ║
-║  🇷🇺 Создано в России для российского бизнеса               ║
-║  ⚡ 13 AI сервисов настроятся автоматически                  ║
+║  🇷🇺 ОФИЦИАЛЬНЫЙ РОССИЙСКИЙ СТАНДАРТ AI АВТОМАТИЗАЦИИ       ║
+║  🤖 13 AI сервисов настроятся автоматически                  ║
+║  🚀 Создано как ГОСТ для российского бизнеса                ║
 ║                                                              ║
 ║            Готов к запуску за 3 минуты!                     ║
 ║                                                              ║
@@ -141,15 +141,15 @@ def get_disk_space_gb():
 
 def print_environment_info(env_info):
     """Вывод информации об окружении."""
-    print(f"\n🔍 АВТООПРЕДЕЛЕНИЕ ОКРУЖЕНИЯ")
+    print(f"\n🔍 АНАЛИЗ ВМ ОКРУЖЕНИЯ")
     print("=" * 50)
-    print(f"🖥️  Тип: {env_info['type'].upper()}")
-    print(f"🌐 IP: {env_info['ip']}")
-    print(f"💻 Hostname: {env_info['hostname']}")
-    print(f"🧠 CPU: {env_info['cpu_count']} cores")
-    print(f"💾 RAM: {env_info['memory_gb']} GB")
-    print(f"💿 Диск: {env_info['disk_free_gb']} GB свободно")
-    print(f"🐳 Docker: {'✅' if env_info['has_docker'] else '❌'}")
+    print(f"💻 Тип системы: {env_info['type'].upper()}")
+    print(f"🌍 Сетевой адрес: {env_info['ip']}")
+    print(f"🏠 Имя хоста: {env_info['hostname']}")
+    print(f"⚙️  Процессор: {env_info['cpu_count']} ядер")
+    print(f"💾 Оперативная память: {env_info['memory_gb']} GB")
+    print(f"💿 Хранилище: {env_info['disk_free_gb']} GB доступно")
+    print(f"🐳 Контейнеризация: {'✅ Доступна' if env_info['has_docker'] else '❌ Отсутствует'}")
 
 def check_docker():
     """Проверка наличия Docker."""
@@ -259,12 +259,12 @@ def generate_random_key(length=32):
 
 def get_minimal_user_input(env_info, config):
     """Минимальный ввод от пользователя - только самое необходимое."""
-    print(f"\n🎯 КОНФИГУРАЦИЯ ДЛЯ {env_info['type'].upper()}")
+    print(f"\n🎯 КОНФИГУРАЦИЯ ВМАПБДЯМ ДЛЯ {env_info['type'].upper()}")
     print("=" * 50)
     
     if env_info['type'] == 'localhost':
-        print("✅ Localhost режим - дополнительная настройка не нужна!")
-        print("🚀 Система запустится автоматически на портах:")
+        print("✅ Локальный режим - дополнительная настройка не нужна!")
+        print("🚀 ВМАПБДЯМ запустится автоматически на портах:")
         for service, port in config['domains'].items():
             service_name = service.replace('_hostname', '').replace('_', ' ').title()
             print(f"   • {service_name}: http://localhost{port}")
@@ -272,7 +272,7 @@ def get_minimal_user_input(env_info, config):
         return config
     
     # Для VPS/Cloud - спросить про домены
-    print("🌐 Обнаружен удаленный сервер!")
+    print("🌐 Обнаружен удаленный сервер для ВМАПБДЯМ!")
     print("💡 Можете настроить домены или использовать IP адреса")
     
     use_domains = input(f"\n🔗 Настроить домены для https://{env_info['ip']}? (y/N): ").strip().lower()
@@ -321,10 +321,10 @@ def get_domain_configuration(env_info, config):
 def create_env_template():
     """Создать .env template если его нет."""
     template_content = """# ================================================================
-# 🤖 AIBot Direct - Auto-Generated Configuration
+# 💻 ВМАПБДЯМ - Автоматически сгенерированная конфигурация
 # ================================================================
-# Этот файл создан автоматически motherlode.py
-# Все секреты сгенерированы криптографически безопасно
+# Виртуальная Машина Автоматизации, Баз Данных и Языковых Моделей
+# ГОСТ стандарт от SHORIN - все ключи безопасно сгенерированы
 
 # ================================================================
 # 🔐 КРИТИЧЕСКИ ВАЖНЫЕ НАСТРОЙКИ (АВТОЗАПОЛНЕНЫ)
@@ -483,7 +483,7 @@ def generate_env_file(config):
 
 def run_integrated_start_services(env_info, config):
     """Интегрированный запуск сервисов с умной обработкой ошибок."""
-    print(f"\n🚀 ЗАПУСК AI ЭКОСИСТЕМЫ ({config['profile'].upper()})")
+    print(f"\n🚀 ЗАПУСК ВМАПБДЯМ ({config['profile'].upper()})")
     print("=" * 50)
     
     # Проверка Docker
@@ -633,8 +633,8 @@ def check_and_display_results(env_info, config):
             print(f"   🔗 {url}")
             print()
         
-        print("🎊 ПОЗДРАВЛЯЕМ! AIBot Direct запущен!")
-        print("🇷🇺 Ваша персональная AI экосистема готова к работе!")
+        print("🎊 ПОЗДРАВЛЯЕМ! ВМАПБДЯМ запущен!")
+        print("🇷🇺 Ваша виртуальная машина AI автоматизации готова к работе!")
         
         # Дополнительная информация
         if config['flowise_password']:

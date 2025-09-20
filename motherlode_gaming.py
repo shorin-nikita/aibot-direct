@@ -59,7 +59,7 @@ def show_industrial_banner():
     banner = Text()
     banner.append("╔══════════════════════════════════════════════════════════════╗\n", style="bold red")
     banner.append("║                                                              ║\n", style="bold red")
-    banner.append("║            🏭 СИСТЕМА АВТОМАТИЗАЦИИ ПРОИЗВОДСТВА            ║\n", style="bold white")
+    banner.append("║            💻 ВМАПБДЯМ - СИСТЕМА AI АВТОМАТИЗАЦИИ            ║\n", style="bold white")
     banner.append("║                                                              ║\n", style="bold red")
     banner.append("║                    ⚙️  AIBot Direct ⚙️                     ║\n", style="bold yellow")
     banner.append("║                                                              ║\n", style="bold red")
@@ -88,7 +88,7 @@ def create_system_status_panel(env_info: Dict[str, Any]) -> Panel:
     table.add_column("Компонент", style="cyan")
     table.add_column("Значение", style="white")
     
-    table.add_row("🏭 Тип производства:", system_type_icons.get(env_info['type'], '❓ Неизвестный'))
+    table.add_row("💻 Тип системы:", system_type_icons.get(env_info['type'], '❓ Неизвестный'))
     table.add_row("🌐 Сетевой узел:", f"{env_info['ip']}")
     table.add_row("🖥️  Имя станции:", f"{env_info['hostname']}")
     table.add_row("⚡ Вычислительные ядра:", f"{env_info['cpu_count']} шт.")
@@ -100,7 +100,7 @@ def create_system_status_panel(env_info: Dict[str, Any]) -> Panel:
     
     return Panel(
         table,
-        title="[bold yellow]📊 СОСТОЯНИЕ ПРОИЗВОДСТВЕННОГО КОМПЛЕКСА[/bold yellow]",
+        title="[bold yellow]📊 СОСТОЯНИЕ СИСТЕМЫ АВТОМАТИЗАЦИИ[/bold yellow]",
         border_style="yellow",
         padding=(1, 2)
     )
@@ -138,7 +138,7 @@ def check_existing_env() -> Optional[Dict[str, str]]:
 def show_existing_domains_panel(domains: Dict[str, str]) -> Panel:
     """Показать найденные домены."""
     table = Table(show_header=True, box=None)
-    table.add_column("🏭 Производственный модуль", style="cyan")
+    table.add_column("💻 Модуль автоматизации", style="cyan")
     table.add_column("🌐 Сетевой адрес", style="green")
     
     service_names = {
@@ -156,7 +156,7 @@ def show_existing_domains_panel(domains: Dict[str, str]) -> Panel:
     
     return Panel(
         table,
-        title="[bold green]🔍 ОБНАРУЖЕНЫ ДЕЙСТВУЮЩИЕ ПРОИЗВОДСТВЕННЫЕ АДРЕСА[/bold green]",
+        title="[bold green]🔍 ОБНАРУЖЕНЫ ДЕЙСТВУЮЩИЕ АДРЕСА СИСТЕМЫ[/bold green]",
         border_style="green",
         padding=(1, 2)
     )
@@ -300,12 +300,12 @@ def open_system_ports():
     console.print("[green]✅ Системные порты настроены[/green]")
 
 def choose_production_level():
-    """Выбор уровня производственной конфигурации."""
+    """Выбор уровня конфигурации системы."""
     
     options_panel = Panel.fit(
         """[bold cyan]🏭 УРОВНИ ПРОМЫШЛЕННОЙ АВТОМАТИЗАЦИИ:[/bold cyan]
 
-[bold green]1️⃣[/bold green]  [white]ЛОКАЛЬНОЕ ПРОИЗВОДСТВО[/white] (рекомендуется)
+[bold green]1️⃣[/bold green]  [white]ЛОКАЛЬНАЯ СИСТЕМА[/white] (рекомендуется)
     • Все модули: [dim]http://localhost:ПОРТ[/dim]
     • Быстрый запуск без внешних зависимостей
     • Идеально для разработки и тестирования
