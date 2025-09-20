@@ -399,7 +399,8 @@ def auto_download_original_files():
     required_files = [
         'docker-compose.yml', 
         'start_services.py',
-        'docker-compose.override.private.yml'  # ДОБАВЛЕНО для исправления ошибки
+        'docker-compose.override.private.yml',  # ПОДТВЕРЖДЕНО: есть в оригинале
+        'docker-compose.override.public.yml'    # ПОДТВЕРЖДЕНО: есть в оригинале
     ]
     missing_files = [f for f in required_files if not Path(f).exists()]
     
@@ -429,7 +430,8 @@ def auto_download_original_files():
                 'local-ai-packaged-main/.env.example',
                 'local-ai-packaged-main/Caddyfile',
                 'local-ai-packaged-main/n8n_pipe.py',
-                'local-ai-packaged-main/docker-compose.override.private.yml'  # ДОБАВЛЕНО
+                'local-ai-packaged-main/docker-compose.override.private.yml',  # ДОБАВЛЕНО: ТОЧНО ЕСТЬ В ОРИГИНАЛЕ
+                'local-ai-packaged-main/docker-compose.override.public.yml'   # ДОБАВЛЕНО: ТОЖЕ ЕСТЬ
             ]
             
             for file_path in extract_files:
