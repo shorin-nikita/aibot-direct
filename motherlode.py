@@ -18,7 +18,9 @@ import platform
 import socket
 import requests
 import shutil
+import zipfile
 from pathlib import Path
+from urllib.request import urlretrieve
 
 # ================================================================
 # 🎨 VISUAL INTERFACE
@@ -29,14 +31,15 @@ def print_shorin_greeting():
     print("""
 ╔══════════════════════════════════════════════════════════════════════╗
 ║                                                                      ║
-║              💻 ВМАПБДЯМ - ПРАВИЛЬНАЯ ИНТЕГРАЦИЯ                     ║
+║              💻 ВМАПБДЯМ - НАСТОЯЩИЙ ZERO CONFIGURATION               ║
 ║     Виртуальная Машина Автоматизации, Баз Данных и Языковых Моделей ║
 ║                                                                      ║
 ║                    Приветствует SHORIN!                             ║
 ║                                                                      ║
-║  🔗 Интеграция с github.com/coleam00/local-ai-packaged              ║
-║  🤖 13 AI сервисов на стандартных портах                            ║
-║  🚀 Автогенерация паролей + запуск оригинальной системы             ║
+║  🔗 Автоскачивает github.com/coleam00/local-ai-packaged             ║
+║  🤖 13 AI сервисов на стандартных портах (:3000, :5678...)          ║
+║  🚀 Автогенерация паролей + автозапуск системы                      ║
+║  📦 Один файл = полная установка!                                   ║
 ║                                                                      ║
 ║              Готов к запуску за 3 минуты!                          ║
 ║                                                                      ║
@@ -391,53 +394,106 @@ def check_and_display_results(env_info, config):
         print("💡 Проверьте логи: docker compose -p localai logs")
         return False
 
-def check_directory():
-    """Проверка правильности директории."""
+def auto_download_original_files():
+    """АВТОСКАЧИВАНИЕ недостающих файлов из оригинального репозитория."""
     required_files = ['docker-compose.yml', 'start_services.py']
     missing_files = [f for f in required_files if not Path(f).exists()]
-
-    if missing_files:
-        print_status("❌ Неправильная директория", False, f"Нет файлов: {', '.join(missing_files)}")
-        print(f"\nТекущая папка: {Path.cwd()}")
-        print("\n💡 Сначала клонируйте оригинальный репозиторий:")
+    
+    if not missing_files:
+        print_status("✅ Все файлы на месте", True, "local-ai-packaged компоненты найдены")
+        return True
+    
+    print(f"\n📦 АВТОСКАЧИВАНИЕ НЕДОСТАЮЩИХ ФАЙЛОВ")
+    print("=" * 60)
+    print(f"🔍 Не найдено: {', '.join(missing_files)}")
+    print("🌐 Скачиваю из https://github.com/coleam00/local-ai-packaged...")
+    
+    try:
+        # Скачиваем архив оригинального репозитория
+        zip_url = "https://github.com/coleam00/local-ai-packaged/archive/refs/heads/main.zip"
+        zip_path = "local-ai-packaged-main.zip"
+        
+        print("📥 Загрузка архива...")
+        urlretrieve(zip_url, zip_path)
+        print_status("✅ Архив загружен", True)
+        
+        # Распаковываем нужные файлы
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            extract_files = [
+                'local-ai-packaged-main/docker-compose.yml',
+                'local-ai-packaged-main/start_services.py', 
+                'local-ai-packaged-main/.env.example',
+                'local-ai-packaged-main/Caddyfile',
+                'local-ai-packaged-main/n8n_pipe.py'
+            ]
+            
+            for file_path in extract_files:
+                try:
+                    # Извлекаем файл
+                    zip_ref.extract(file_path)
+                    # Перемещаем в текущую директорию
+                    source = Path(file_path)
+                    target = Path(source.name)
+                    if source.exists():
+                        shutil.move(str(source), str(target))
+                        print_status(f"✅ {source.name}", True, "скопирован")
+                except Exception as e:
+                    print_status(f"⚠️ {file_path.split('/')[-1]}", False, f"пропущен: {e}")
+        
+        # Удаляем архив и временную папку  
+        Path(zip_path).unlink()
+        shutil.rmtree('local-ai-packaged-main', ignore_errors=True)
+        
+        print_status("🎉 Автоскачивание завершено!", True, "Все нужные файлы получены")
+        return True
+        
+    except Exception as e:
+        print_status("❌ Ошибка автоскачивания", False, str(e))
+        print("\n💡 Альтернативная установка:")
         print("   git clone https://github.com/coleam00/local-ai-packaged.git")
         print("   cd local-ai-packaged")  
-        print("   python3 ../aibot-direct/motherlode_fixed.py")
-        sys.exit(1)
+        print("   python3 ../aibot-direct/motherlode.py")
+        return False
 
-    print_status("✅ Директория корректна", True, "local-ai-packaged")
+def check_directory():
+    """Проверка и автоскачивание недостающих файлов."""
+    return auto_download_original_files()
 
 # ================================================================
 # 🎮 MAIN ORCHESTRATOR
 # ================================================================
 
 def main():
-    """Главная функция - правильная интеграция с local-ai-packaged."""
+    """Главная функция - НАСТОЯЩИЙ ZERO CONFIGURATION!"""
     
     # Приветствие
     print_shorin_greeting()
     
-    # Проверка директории
-    check_directory()
+    # ШАГ 1: Автоскачивание недостающих файлов
+    print_progress_bar(1, 6, "Проверка и автоскачивание")
+    if not check_directory():
+        print("\n❌ Не удалось получить необходимые файлы")
+        print("💡 Проверьте интернет соединение и повторите попытку")
+        sys.exit(1)
     
-    # ШАГ 1: Автоопределение окружения
-    print_progress_bar(1, 5, "Анализ окружения")
+    # ШАГ 2: Автоопределение окружения
+    print_progress_bar(2, 6, "Анализ окружения")
     env_info = detect_environment()
     
-    # ШАГ 2: Генерация умной конфигурации
-    print_progress_bar(2, 5, "Генерация конфигурации")
+    # ШАГ 3: Генерация умной конфигурации
+    print_progress_bar(3, 6, "Генерация конфигурации")
     config = generate_smart_config(env_info)
     
-    # ШАГ 3: Создание .env файла
-    print_progress_bar(3, 5, "Создание .env файла")
+    # ШАГ 4: Создание .env файла
+    print_progress_bar(4, 6, "Создание .env файла")
     env_file = create_original_env_file(config)
     
-    # ШАГ 4: Запуск оригинальной системы
-    print_progress_bar(4, 5, "Запуск local-ai-packaged")
+    # ШАГ 5: Запуск оригинальной системы
+    print_progress_bar(5, 6, "Запуск local-ai-packaged")
     success = run_original_start_services(env_info, config)
     
-    # ШАГ 5: Проверка результатов
-    print_progress_bar(5, 5, "Проверка сервисов")
+    # ШАГ 6: Проверка результатов
+    print_progress_bar(6, 6, "Проверка сервисов")
     if success:
         check_and_display_results(env_info, config)
     else:

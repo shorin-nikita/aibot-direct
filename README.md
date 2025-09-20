@@ -10,19 +10,13 @@
 
 ## 📦 Installation - НУЛЕВАЯ КОНФИГУРАЦИЯ!
 
-### 🚀 Способ 1: ПРАВИЛЬНАЯ интеграция (рекомендуется)
+### 🚀 Способ 1: НАСТОЯЩИЙ ZERO CONFIGURATION! (рекомендуется)
 ```bash
-# 1. Клонировать оригинальный local-ai-packaged:
-git clone https://github.com/coleam00/local-ai-packaged.git
-cd local-ai-packaged
-
-# 2. Скачать ВМАПБДЯМ интеграцию:
-curl -O https://raw.githubusercontent.com/shorin-nikita/aibot-direct/main/motherlode_fixed.py
-
-# 3. Запустить ZERO CONFIGURATION:
-python3 motherlode_fixed.py
+git clone https://github.com/shorin-nikita/aibot-direct.git
+cd aibot-direct
+python3 motherlode.py
 ```
-**🎯 ПРАВИЛЬНАЯ интеграция** с оригинальной системой local-ai-packaged!
+**🎯 ВСЁ АВТОМАТИЧЕСКИ!** Сам скачает, настроит, запустит!
 
 ### ⚡ Способ 2: Только для разработчиков (без гарантий)
 ```bash
@@ -40,6 +34,7 @@ python3 diagnose.py
 **🩺 Диагностика системы** и автоматическое исправление ошибок!
 
 ### ⚡ Что происходит автоматически:
+- ✅ **Автоскачивание** недостающих файлов из local-ai-packaged
 - ✅ **Определяется тип сервера** (localhost/VPS/cloud)
 - ✅ **Выбирается оптимальный профиль** (CPU/GPU)
 - ✅ **Генерируются все пароли** криптографически безопасно
